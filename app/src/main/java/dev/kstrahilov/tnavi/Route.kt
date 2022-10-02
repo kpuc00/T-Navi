@@ -2,7 +2,8 @@ package dev.kstrahilov.tnavi
 
 import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.widget.TextClock
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -15,9 +16,7 @@ class Route : AppCompatActivity() {
 
     private lateinit var tvLine: TextView
     private lateinit var tvDirection: TextView
-    private lateinit var clock: TextClock
-    private lateinit var weekday: TextView
-    private lateinit var date: TextView
+    private lateinit var tvTimeColon: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,18 +27,17 @@ class Route : AppCompatActivity() {
 
         tvLine = findViewById(R.id.tv_line)
         tvDirection = findViewById(R.id.tv_direction)
-        clock = findViewById(R.id.clock)
-        weekday = findViewById(R.id.tv_weekday)
-        date = findViewById(R.id.tv_date)
+        tvTimeColon = findViewById(R.id.time_colon)
 
         tvLine.isSelected = true
         tvDirection.isSelected = true
 
-        val currentDate = Calendar.getInstance().time
-        val formattedDate = DateFormat.getDateInstance(DateFormat.FULL).format(currentDate)
-        val splitDate = formattedDate.toString().split(",")
-        weekday.text = splitDate[0].trim()
-        date.text = splitDate[1].trim()
+        val anim: Animation = AlphaAnimation(0.0f, 1.0f)
+        anim.duration = 1 //You can manage the blinking time with this parameter
+        anim.startOffset = 1000
+        anim.repeatMode = Animation.REVERSE
+        anim.repeatCount = Animation.INFINITE
+        tvTimeColon.startAnimation(anim)
     }
 
     private fun hideSystemBars() {

@@ -60,7 +60,7 @@
                 android:marqueeRepeatLimit="marquee_forever"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:text="Аспарухово"
+                android:text="Владиславово"
                 android:textColor="@color/white"
                 android:textSize="60sp"
                 tools:layout_editor_absoluteX="11dp" />
@@ -118,45 +118,91 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <TextClock
-            android:id="@+id/clock"
+            android:id="@+id/time_hours"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:fontFamily="@font/arial"
-            android:format24Hour="H:mm"
-            android:text="00:00"
+            android:format24Hour="HH"
+            android:includeFontPadding="false"
+            android:text="00"
             android:textColor="@color/black"
-            android:textSize="75sp" />
+            android:textSize="85sp" />
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/time_colon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/arial"
+            android:includeFontPadding="false"
+            android:text=":"
+            android:textColor="@color/black"
+            android:textSize="85sp" />
+
+        <TextClock
+            android:id="@+id/time_minutes"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:fontFamily="@font/arial"
+            android:format24Hour="mm"
+            android:includeFontPadding="false"
+            android:text="00"
+            android:textColor="@color/black"
+            android:textSize="85sp" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/col_date"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginHorizontal="50dp"
-            android:orientation="vertical">
+            android:layout_marginVertical="10dp">
 
-            <TextView
-                android:id="@+id/tv_weekday"
+            <TextClock
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="9dp"
                 android:fontFamily="@font/arial"
-                android:text="weekday"
+                android:format24Hour="EEEE"
+                android:text="понеделник"
                 android:textColor="@color/black"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <!--            <Space-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="30dp" />-->
-
-            <TextView
-                android:id="@+id/tv_date"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="9dp"
-                android:fontFamily="@font/arial"
-                android:text="date"
-                android:textColor="@color/black"
-                android:textSize="20sp" />
-        </LinearLayout>
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <TextClock
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/arial"
+                    android:format24Hour="dd"
+                    android:text="01"
+                    android:textColor="@color/black"
+                    android:textSize="20sp" />
+
+                <TextClock
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="5dp"
+                    android:fontFamily="@font/arial"
+                    android:format24Hour="MMMM"
+                    android:text="януари"
+                    android:textColor="@color/black"
+                    android:textSize="20sp" />
+
+                <TextClock
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/arial"
+                    android:format24Hour="yyyy"
+                    android:text="2022"
+                    android:textColor="@color/black"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
