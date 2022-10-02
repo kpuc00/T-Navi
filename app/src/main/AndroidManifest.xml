@@ -19,9 +19,9 @@
         tools:targetApi="31">
         <activity
             android:name=".Route"
-            android:resizeableActivity="false"
-            android:maxAspectRatio="1.86"
-            android:exported="false">
+            android:exported="false"
+            android:maxAspectRatio="1.65"
+            android:resizeableActivity="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />

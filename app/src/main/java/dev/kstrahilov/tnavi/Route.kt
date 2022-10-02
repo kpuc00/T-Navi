@@ -1,19 +1,15 @@
 package dev.kstrahilov.tnavi
 
 import android.content.pm.ActivityInfo
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.WindowInsetsController
-import android.view.WindowManager
 import android.widget.TextClock
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import java.text.DateFormat
-import java.util.Calendar
-import java.util.Date
+import java.util.*
 
 class Route : AppCompatActivity() {
 
@@ -38,8 +34,6 @@ class Route : AppCompatActivity() {
 
         tvLine.isSelected = true
         tvDirection.isSelected = true
-
-        clock.format24Hour = "hh:mm"
 
         val currentDate = Calendar.getInstance().time
         val formattedDate = DateFormat.getDateInstance(DateFormat.FULL).format(currentDate)
