@@ -1,7 +1,6 @@
 package dev.kstrahilov.tnavi
 
 import android.content.Context
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
@@ -27,8 +26,6 @@ class StopListAdapter(var context: Context, var arrayList: ArrayList<Stop>) : Ba
         val tvTitle: TextView = view.findViewById(R.id.tv_title)
 
         val stop: Stop = arrayList[p0]
-        Log.d("stop data current", stop.isCurrent.toString())
-        Log.d("stop data stop", stop.isNext.toString())
         if (stop.isCurrent) {
             ivStop.setImageResource(R.drawable.tekushta_spirka)
             tvTitle.setTextColor(tvTitle.context.getColor(R.color.red))

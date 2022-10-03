@@ -13,7 +13,10 @@
     <string name="template_day">01</string>
     <string name="template_month">януари</string>
     <string name="template_year">2022</string>
-    <string name="template_line">88</string>
-    <string name="template_direction">Аспарухово</string>
+    <string name="template_line">999</string>
+    <string name="template_direction">ТЕСТ ДРАЙВ</string>
     <string name="template_stop">Бл. 407 /Вл-во/</string>
+    <string name="next_stop_">Следваща спирка:</string>
+    <string name="stop_">Спирка:</string>
+    <string name="template_stop_title">Централна поща (за Аспарухово)</string>
 </resources>
