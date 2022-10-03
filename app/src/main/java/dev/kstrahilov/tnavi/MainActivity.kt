@@ -33,11 +33,11 @@ class MainActivity : AppCompatActivity() {
         btnRoute = findViewById(R.id.btn_route)
 
         btnRoute.setOnClickListener{
-            val intent = Intent(this,Route::class.java)
+            val intent = Intent(this,RouteActivity::class.java)
             startActivity(intent)
         }
 
-        getCurrentLocation();
+        getCurrentLocation()
     }
 
     private fun getCurrentLocation() {
@@ -88,8 +88,8 @@ class MainActivity : AppCompatActivity() {
         ActivityCompat.requestPermissions(
             this,
             arrayOf(
-                android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
             ),
             PERMISSION_REQUEST_ACCESS_LOCATION
         )
@@ -102,10 +102,10 @@ class MainActivity : AppCompatActivity() {
     private fun checkPermissions(): Boolean {
         if (ActivityCompat.checkSelfPermission(
                 this,
-                android.Manifest.permission.ACCESS_COARSE_LOCATION
+                Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
                 this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
+                Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             return true

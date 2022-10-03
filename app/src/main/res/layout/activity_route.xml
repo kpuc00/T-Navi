@@ -9,8 +9,7 @@
     android:keepScreenOn="true"
     android:orientation="vertical"
     android:padding="5dp"
-    tools:context=".Route">
-
+    tools:context=".RouteActivity">
 
     <LinearLayout
         android:id="@+id/row_line_direction"
@@ -38,7 +37,7 @@
                 android:marqueeRepeatLimit="marquee_forever"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:text="88"
+                android:text="@string/template_line"
                 android:textColor="@color/white"
                 android:textSize="65sp" />
         </FrameLayout>
@@ -60,18 +59,16 @@
                 android:marqueeRepeatLimit="marquee_forever"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:text="Владиславово"
+                android:text="@string/template_direction"
                 android:textColor="@color/white"
                 android:textSize="60sp"
                 tools:layout_editor_absoluteX="11dp" />
         </FrameLayout>
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/row_route"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_height="200dp"
         android:paddingHorizontal="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -81,26 +78,50 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/arialbd"
-            android:text="маршрут:"
+            android:text="@string/route"
             android:textColor="@color/gray"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="12dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="32dp"
+            android:contentDescription="@string/vertical_line"
+            android:scaleType="fitXY"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/vertical_line" />
+
+        <ListView
+            android:id="@+id/lv_route"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="29dp"
+            android:clickable="false"
+            android:contextClickable="false"
+            android:divider="@null"
+            android:focusable="false"
+            android:longClickable="false"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
         android:id="@+id/row_divider"
         android:layout_width="match_parent"
         android:layout_height="7dp"
+        android:layout_marginBottom="3dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@id/row_datetime"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp">
-
+        app:layout_constraintStart_toStartOf="parent">
 
         <View
-            android:id="@+id/divider2"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -124,7 +145,7 @@
             android:fontFamily="@font/arial"
             android:format24Hour="HH"
             android:includeFontPadding="false"
-            android:text="00"
+            android:text="@string/template_clock_hours"
             android:textColor="@color/black"
             android:textSize="85sp" />
 
@@ -134,7 +155,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/arial"
             android:includeFontPadding="false"
-            android:text=":"
+            android:text="@string/colon"
             android:textColor="@color/black"
             android:textSize="85sp" />
 
@@ -145,7 +166,7 @@
             android:fontFamily="@font/arial"
             android:format24Hour="mm"
             android:includeFontPadding="false"
-            android:text="00"
+            android:text="@string/template_clock_minutes"
             android:textColor="@color/black"
             android:textSize="85sp" />
 
@@ -161,7 +182,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/arial"
                 android:format24Hour="EEEE"
-                android:text="понеделник"
+                android:text="@string/template_weekday"
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -178,7 +199,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/arial"
                     android:format24Hour="dd"
-                    android:text="01"
+                    android:text="@string/template_day"
                     android:textColor="@color/black"
                     android:textSize="20sp" />
 
@@ -188,7 +209,7 @@
                     android:layout_marginHorizontal="5dp"
                     android:fontFamily="@font/arial"
                     android:format24Hour="MMMM"
-                    android:text="януари"
+                    android:text="@string/template_month"
                     android:textColor="@color/black"
                     android:textSize="20sp" />
 
@@ -197,7 +218,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/arial"
                     android:format24Hour="yyyy"
-                    android:text="2022"
+                    android:text="@string/template_year"
                     android:textColor="@color/black"
                     android:textSize="20sp" />
             </LinearLayout>

@@ -3,4 +3,17 @@
     <string name="title_activity_route">Route</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="stop">stop</string>
+    <string name="vertical_line">vertical line</string>
+    <string name="route">маршрут:</string>
+    <string name="colon">:</string>
+    <string name="template_clock_hours">00</string>
+    <string name="template_clock_minutes">00</string>
+    <string name="template_weekday">понеделник</string>
+    <string name="template_day">01</string>
+    <string name="template_month">януари</string>
+    <string name="template_year">2022</string>
+    <string name="template_line">88</string>
+    <string name="template_direction">Аспарухово</string>
+    <string name="template_stop">Бл. 407 /Вл-во/</string>
 </resources>
