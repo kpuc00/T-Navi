@@ -9,7 +9,7 @@ class Stop(
     var isNext: Boolean,
     var location: Location?,
     var announcementFilePath: String?
-) {
+) : java.io.Serializable {
     override fun toString(): String {
         return title
     }

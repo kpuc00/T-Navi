@@ -1,8 +1,5 @@
 <resources>
     <string name="app_name">T-Navi</string>
-    <string name="title_activity_route">Route</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="stop">stop</string>
     <string name="vertical_line">vertical line</string>
     <string name="route">маршрут:</string>
@@ -19,4 +16,9 @@
     <string name="next_stop_">Следваща спирка:</string>
     <string name="stop_">Спирка:</string>
     <string name="template_stop_title">Централна поща (за Аспарухово)</string>
+    <string name="start">Започни пътуване</string>
+    <string name="settings">Настройки</string>
+    <string name="label_homePage">Начало</string>
+    <string name="choose_line">Изберете линия:</string>
+    <string name="choose_direction">Посока на линията:</string>
 </resources>
