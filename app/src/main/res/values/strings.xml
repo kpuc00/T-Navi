@@ -21,4 +21,8 @@
     <string name="label_homePage">Начало</string>
     <string name="choose_line">Изберете линия:</string>
     <string name="choose_direction">Посока на линията:</string>
+    <string name="exit_route">Прекъсване на пътуването</string>
+    <string name="exit_route_question">Желате ли да прекъснете пътуването?</string>
+    <string name="yes">Да</string>
+    <string name="no">Не</string>
 </resources>

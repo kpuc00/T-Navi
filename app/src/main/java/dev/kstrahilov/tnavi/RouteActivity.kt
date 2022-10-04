@@ -14,6 +14,7 @@ import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
@@ -36,6 +37,18 @@ class RouteActivity : AppCompatActivity() {
     private lateinit var rowDateTime: LinearLayout
     private lateinit var tvNextStopInfoRow: TextView
     private lateinit var tvStopTitle: TextView
+
+    override fun onBackPressed() {
+        val alert = AlertDialog.Builder(this)
+        alert.setTitle(application.getString(R.string.exit_route))
+        alert.setMessage(application.getString(R.string.exit_route_question))
+        alert.setPositiveButton(application.getString(R.string.yes)) { _, _ ->
+            finish()
+        }
+        alert.setNegativeButton(application.getString(R.string.no)) { _, _ -> }
+        val alertDialog = alert.create()
+        alertDialog.show()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
