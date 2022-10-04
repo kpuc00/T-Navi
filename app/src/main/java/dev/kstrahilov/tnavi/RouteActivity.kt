@@ -8,6 +8,7 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.LinearLayout
@@ -25,7 +26,9 @@ import com.google.android.gms.location.LocationServices
 
 class RouteActivity : AppCompatActivity() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+//    private var currentLocation: Location? = null
 
+    private lateinit var loadingScreen: LinearLayout
     private lateinit var tvLine: TextView
     private lateinit var tvDirection: TextView
     private lateinit var tvTimeColon: TextView
@@ -62,6 +65,12 @@ class RouteActivity : AppCompatActivity() {
         lineNumber = intent.getStringExtra("line").toString()
         direction = intent.getSerializableExtra("direction") as Direction
 
+        loadingScreen = findViewById(R.id.loading_screen)
+        loadingScreen.visibility = View.GONE
+        initializeApp()
+    }
+
+    private fun initializeApp() {
         tvLine = findViewById(R.id.tv_line)
         tvDirection = findViewById(R.id.tv_direction)
         tvTimeColon = findViewById(R.id.time_colon)
@@ -110,7 +119,6 @@ class RouteActivity : AppCompatActivity() {
         rowDateTimeAnim.repeatMode = Animation.REVERSE
         rowDateTimeAnim.repeatCount = Animation.INFINITE
         rowDateTime.startAnimation(rowDateTimeAnim)
-
     }
 
     private fun hideSystemBars() {

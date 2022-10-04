@@ -25,4 +25,5 @@
     <string name="exit_route_question">Желате ли да прекъснете пътуването?</string>
     <string name="yes">Да</string>
     <string name="no">Не</string>
+    <string name="logo">logo</string>
 </resources>
