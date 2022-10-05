@@ -32,6 +32,7 @@ class ChooseDirectionActivity : AppCompatActivity(), OnItemClickListener {
         val direction: Direction? = line?.directions?.get(position)
         val intent = Intent(this, RouteActivity::class.java)
         intent.putExtra("line", line.toString())
+        intent.putExtra("lineAnnouncement", line?.announcementFilePath.toString())
         intent.putExtra("direction", direction)
         startActivity(intent)
     }

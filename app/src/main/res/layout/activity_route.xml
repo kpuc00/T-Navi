@@ -283,12 +283,13 @@
             android:id="@+id/logo_loading"
             android:layout_width="wrap_content"
             android:layout_height="130dp"
+            android:contentDescription="@string/logo"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/logo_loading_screen"
-            android:contentDescription="@string/logo" />
+            app:srcCompat="@drawable/logo_loading_screen" />
 
     </LinearLayout>
 
