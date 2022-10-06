@@ -19,13 +19,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
 
 class RouteActivity : AppCompatActivity() {
+    private lateinit var locationRequest: LocationRequest
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-//    private var currentLocation: Location? = null
-
+    private lateinit var locationCallback: LocationCallback
     private lateinit var loadingScreen: LinearLayout
     private lateinit var logoLoading: ImageView
     private lateinit var tvLine: TextView
@@ -41,13 +40,13 @@ class RouteActivity : AppCompatActivity() {
     private lateinit var tvNextStopInfoRow: TextView
     private lateinit var tvStopTitle: TextView
     private var mediaPlayer: MediaPlayer = MediaPlayer()
-//    private var audioList: ArrayList<Int> = ArrayList()
 
     override fun onBackPressed() {
         val alert = AlertDialog.Builder(this)
         alert.setTitle(application.getString(R.string.exit_route))
         alert.setMessage(application.getString(R.string.exit_route_question))
         alert.setPositiveButton(application.getString(R.string.yes)) { _, _ ->
+            stopGPSUpdates()
             mediaPlayer.release()
             finish()
         }
@@ -59,12 +58,11 @@ class RouteActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_route)
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        getCurrentLocation()
+
         hideSystemBars()
         supportActionBar?.hide()
-        val intent = intent
 
+        val intent = intent
         lineNumber = intent.getStringExtra("line").toString()
         val strLineAnnouncement = intent.getStringExtra("lineAnnouncement")
         lineAnnouncement = if (strLineAnnouncement != null && strLineAnnouncement != "null") {
@@ -120,6 +118,8 @@ class RouteActivity : AppCompatActivity() {
             }
         }
 
+        startGPSUpdates()
+
         if (route.size > 0) {
             val stop = route[0]
             tvStopTitle.text = stop.toString()
@@ -165,8 +165,7 @@ class RouteActivity : AppCompatActivity() {
         mediaPlayer.start()
     }
 
-
-    private fun getCurrentLocation() {
+    private fun startGPSUpdates() {
         if (checkPermissions()) {
             if (isLocationEnabled()) {
                 if (ActivityCompat.checkSelfPermission(
@@ -178,17 +177,44 @@ class RouteActivity : AppCompatActivity() {
                     requestPermission()
                     return
                 }
-                fusedLocationProviderClient.lastLocation.addOnCompleteListener(this) { task ->
-                    val location: Location? = task.result
-                    if (location == null) {
-                        Toast.makeText(this, "Null received", Toast.LENGTH_SHORT).show()
-                    } else {
-//                        Toast.makeText(
-//                            this, "Lat: " + location.latitude.toString() + ", Long: " +
-//                                    location.longitude.toString(), Toast.LENGTH_LONG
-//                        ).show()
-                    }
+                locationRequest = LocationRequest.create().apply {
+                    interval = 1000 * UPDATE_DEFAULT_INTERVAL
+                    fastestInterval = 1000 * FAST_UPDATE_INTERVAL
+                    priority = Priority.PRIORITY_BALANCED_POWER_ACCURACY
                 }
+
+                locationCallback = object : LocationCallback() {
+                    override fun onLocationResult(locationResult: LocationResult) {
+                        val location: Location? = locationResult.lastLocation
+                        if (location != null) {
+//                    Toast.makeText(
+//                        applicationContext, "Lat: ${location.latitude}, Long: ${location.longitude}, Acc: ${location.accuracy}", Toast.LENGTH_SHORT
+//                    ).show()
+                            val radiusInMeters = 28
+                            val distance = FloatArray(1)
+                            Location.distanceBetween(
+                                location.latitude, location.longitude, 51.4652, 5.452, distance
+                            )
+                            if (distance[0] < radiusInMeters) {
+                                route[0].isCurrent = true
+                                route[0].isNext = false
+                                route[1].isNext = true
+                                Toast.makeText(
+                                    applicationContext,
+                                    "Distance: ${distance[0]} meters",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                announce(R.raw.spirka)
+                            }
+                        }
+                    }
+
+                }
+
+                fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+                fusedLocationProviderClient.requestLocationUpdates(
+                    locationRequest, locationCallback, null
+                )
             } else {
                 Toast.makeText(
                     this, application.getString(R.string.enable_location), Toast.LENGTH_SHORT
@@ -199,6 +225,10 @@ class RouteActivity : AppCompatActivity() {
         } else {
             requestPermission()
         }
+    }
+
+    private fun stopGPSUpdates() {
+        fusedLocationProviderClient.removeLocationUpdates(locationCallback)
     }
 
     private fun isLocationEnabled(): Boolean {
@@ -219,6 +249,8 @@ class RouteActivity : AppCompatActivity() {
 
     companion object {
         private const val PERMISSION_REQUEST_ACCESS_LOCATION = 100
+        private const val UPDATE_DEFAULT_INTERVAL = 10L
+        private const val FAST_UPDATE_INTERVAL = 5L
     }
 
     private fun checkPermissions(): Boolean {
@@ -240,7 +272,7 @@ class RouteActivity : AppCompatActivity() {
 
         if (requestCode == PERMISSION_REQUEST_ACCESS_LOCATION) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getCurrentLocation()
+                startGPSUpdates()
             } else {
                 Toast.makeText(
                     applicationContext,
