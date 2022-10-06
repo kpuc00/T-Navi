@@ -118,9 +118,9 @@ class RouteActivity : AppCompatActivity() {
             }
         }
 
-        startGPSUpdates()
-
         if (route.size > 0) {
+            startGPSUpdates()
+
             val stop = route[0]
             tvStopTitle.text = stop.toString()
             tvStopTitle.isSelected = true
@@ -190,12 +190,11 @@ class RouteActivity : AppCompatActivity() {
 //                    Toast.makeText(
 //                        applicationContext, "Lat: ${location.latitude}, Long: ${location.longitude}, Acc: ${location.accuracy}", Toast.LENGTH_SHORT
 //                    ).show()
-                            val radiusInMeters = 28
                             val distance = FloatArray(1)
                             Location.distanceBetween(
                                 location.latitude, location.longitude, 51.4652, 5.452, distance
                             )
-                            if (distance[0] < radiusInMeters) {
+                            if (distance[0] < DESTINATION_RADIUS ) {
                                 route[0].isCurrent = true
                                 route[0].isNext = false
                                 route[1].isNext = true
@@ -204,7 +203,9 @@ class RouteActivity : AppCompatActivity() {
                                     "Distance: ${distance[0]} meters",
                                     Toast.LENGTH_SHORT
                                 ).show()
-                                announce(R.raw.spirka)
+                                if (!mediaPlayer.isPlaying) {
+                                    announce(R.raw.spirka)
+                                }
                             }
                         }
                     }
@@ -251,6 +252,7 @@ class RouteActivity : AppCompatActivity() {
         private const val PERMISSION_REQUEST_ACCESS_LOCATION = 100
         private const val UPDATE_DEFAULT_INTERVAL = 10L
         private const val FAST_UPDATE_INTERVAL = 5L
+        private const val DESTINATION_RADIUS = 50
     }
 
     private fun checkPermissions(): Boolean {
