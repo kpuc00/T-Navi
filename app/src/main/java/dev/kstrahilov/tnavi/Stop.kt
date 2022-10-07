@@ -1,15 +1,18 @@
 package dev.kstrahilov.tnavi
 
-import android.location.Location
+import android.os.Parcelable
+import com.google.android.gms.maps.model.LatLng
+import kotlinx.parcelize.Parcelize
 
-
+@Parcelize
 class Stop(
     var title: String,
-    var isCurrent: Boolean,
-    var isNext: Boolean,
-    var location: Location?,
-    var announcementFilePath: String?
-) : java.io.Serializable {
+    var location: LatLng = LatLng(0.0, 0.0),
+    var announcementFilePath: String?,
+    var isCurrent: Boolean = false,
+    var isNext: Boolean = false,
+//    var announced: Boolean = false
+) : Parcelable {
     override fun toString(): String {
         return title
     }

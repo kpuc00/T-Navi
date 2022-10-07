@@ -2,13 +2,11 @@ package dev.kstrahilov.tnavi
 
 import android.Manifest
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.provider.Settings
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
@@ -37,9 +35,17 @@ class RouteActivity : AppCompatActivity() {
     private lateinit var route: ArrayList<Stop>
     private lateinit var stopListAdapter: StopListAdapter
     private lateinit var rowDateTime: LinearLayout
+    private lateinit var rowDateTimeAnim: Animation
     private lateinit var tvNextStopInfoRow: TextView
     private lateinit var tvStopTitle: TextView
     private var mediaPlayer: MediaPlayer = MediaPlayer()
+
+    companion object {
+        private const val PERMISSION_REQUEST_ACCESS_LOCATION = 100
+        private const val UPDATE_DEFAULT_INTERVAL = 10L
+        private const val FAST_UPDATE_INTERVAL = 5L
+        private const val DESTINATION_RADIUS = 50
+    }
 
     override fun onBackPressed() {
         val alert = AlertDialog.Builder(this)
@@ -70,7 +76,7 @@ class RouteActivity : AppCompatActivity() {
         } else {
             null
         }
-        direction = intent.getSerializableExtra("direction") as Direction
+        direction = intent.getParcelableExtra<Direction>("direction") as Direction
 
         loadingScreen = findViewById(R.id.loading_screen)
         logoLoading = findViewById(R.id.logo_loading)
@@ -119,18 +125,11 @@ class RouteActivity : AppCompatActivity() {
         }
 
         if (route.size > 0) {
-            startGPSUpdates()
-
             val stop = route[0]
-            tvStopTitle.text = stop.toString()
-            tvStopTitle.isSelected = true
-            if (stop.isCurrent) {
-                tvNextStopInfoRow.text = tvNextStopInfoRow.context.getText(R.string.stop_)
-                tvStopTitle.setTextColor(tvStopTitle.context.getColor(R.color.red))
-            } else {
-                tvNextStopInfoRow.text = tvNextStopInfoRow.context.getText(R.string.next_stop_)
-                tvStopTitle.setTextColor(tvStopTitle.context.getColor(R.color.green))
-            }
+            stop.isNext = true
+            updateStopInfoRow(stop)
+
+            startGPSUpdates()
         } else {
             tvStopTitle.text = ""
         }
@@ -142,12 +141,24 @@ class RouteActivity : AppCompatActivity() {
         clockAnim.repeatCount = Animation.INFINITE
         tvTimeColon.startAnimation(clockAnim)
 
-        val rowDateTimeAnim: Animation = AlphaAnimation(0.0f, 1.0f)
+        rowDateTimeAnim = AlphaAnimation(0.0f, 1.0f)
         rowDateTimeAnim.duration = 1
         rowDateTimeAnim.startOffset = 5000
         rowDateTimeAnim.repeatMode = Animation.REVERSE
         rowDateTimeAnim.repeatCount = Animation.INFINITE
         rowDateTime.startAnimation(rowDateTimeAnim)
+    }
+
+    private fun updateStopInfoRow(stop: Stop) {
+        tvStopTitle.text = stop.toString()
+        tvStopTitle.isSelected = true
+        if (stop.isCurrent) {
+            tvNextStopInfoRow.text = tvNextStopInfoRow.context.getText(R.string.stop_)
+            tvStopTitle.setTextColor(tvStopTitle.context.getColor(R.color.red))
+        } else {
+            tvNextStopInfoRow.text = tvNextStopInfoRow.context.getText(R.string.next_stop_)
+            tvStopTitle.setTextColor(tvStopTitle.context.getColor(R.color.green))
+        }
     }
 
     private fun hideSystemBars() {
@@ -185,27 +196,32 @@ class RouteActivity : AppCompatActivity() {
 
                 locationCallback = object : LocationCallback() {
                     override fun onLocationResult(locationResult: LocationResult) {
-                        val location: Location? = locationResult.lastLocation
-                        if (location != null) {
-//                    Toast.makeText(
-//                        applicationContext, "Lat: ${location.latitude}, Long: ${location.longitude}, Acc: ${location.accuracy}", Toast.LENGTH_SHORT
-//                    ).show()
+                        val currentLocation: Location? = locationResult.lastLocation
+                        if (currentLocation != null) {
                             val distance = FloatArray(1)
                             Location.distanceBetween(
-                                location.latitude, location.longitude, 51.4652, 5.452, distance
+                                currentLocation.latitude,
+                                currentLocation.longitude,
+                                route[0].location.latitude,
+                                route[0].location.longitude,
+                                distance
                             )
-                            if (distance[0] < DESTINATION_RADIUS ) {
+                            if (distance[0] < DESTINATION_RADIUS && !mediaPlayer.isPlaying) {
                                 route[0].isCurrent = true
                                 route[0].isNext = false
                                 route[1].isNext = true
-                                Toast.makeText(
-                                    applicationContext,
-                                    "Distance: ${distance[0]} meters",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                if (!mediaPlayer.isPlaying) {
-                                    announce(R.raw.spirka)
-                                }
+                                stopListAdapter.notifyDataSetChanged()
+                                updateStopInfoRow(route[0])
+                                rowDateTimeAnim.startNow()
+                                announce(R.raw.spirka)
+                            }
+
+                            if (route.size > 1 && distance[0] > DESTINATION_RADIUS && route[0].isCurrent && !mediaPlayer.isPlaying) {
+                                route.removeAt(0)
+                                stopListAdapter.notifyDataSetChanged()
+                                updateStopInfoRow(route[0])
+                                rowDateTimeAnim.startNow()
+                                announce(R.raw.sledvashta_spirka)
                             }
                         }
                     }
@@ -218,10 +234,8 @@ class RouteActivity : AppCompatActivity() {
                 )
             } else {
                 Toast.makeText(
-                    this, application.getString(R.string.enable_location), Toast.LENGTH_SHORT
+                    this, application.getString(R.string.enable_location), Toast.LENGTH_LONG
                 ).show()
-                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                startActivity(intent)
             }
         } else {
             requestPermission()
@@ -229,7 +243,10 @@ class RouteActivity : AppCompatActivity() {
     }
 
     private fun stopGPSUpdates() {
-        fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+        try {
+            fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+        } catch (_: UninitializedPropertyAccessException) {
+        }
     }
 
     private fun isLocationEnabled(): Boolean {
@@ -246,13 +263,6 @@ class RouteActivity : AppCompatActivity() {
                 Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
             ), PERMISSION_REQUEST_ACCESS_LOCATION
         )
-    }
-
-    companion object {
-        private const val PERMISSION_REQUEST_ACCESS_LOCATION = 100
-        private const val UPDATE_DEFAULT_INTERVAL = 10L
-        private const val FAST_UPDATE_INTERVAL = 5L
-        private const val DESTINATION_RADIUS = 50
     }
 
     private fun checkPermissions(): Boolean {

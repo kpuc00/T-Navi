@@ -27,5 +27,5 @@
     <string name="no">Не</string>
     <string name="logo">logo</string>
     <string name="location_access_denied">Маршрутът няма да се следи!</string>
-    <string name="enable_location">Включете местоположението</string>
+    <string name="enable_location">Включете местоположението на устройството и рестартирайте пътуването!</string>
 </resources>
