@@ -11,7 +11,7 @@ class Stop(
     var announcementFilePath: String?,
     var isCurrent: Boolean = false,
     var isNext: Boolean = false,
-//    var announced: Boolean = false
+    var isAnnounced: Boolean = false,
 ) : Parcelable {
     override fun toString(): String {
         return title

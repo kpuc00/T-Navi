@@ -33,6 +33,7 @@ class RouteActivity : AppCompatActivity() {
     private var lineAnnouncement: Int? = null
     private lateinit var direction: Direction
     private lateinit var route: ArrayList<Stop>
+    private lateinit var loadedRoute: ArrayList<Stop>
     private lateinit var stopListAdapter: StopListAdapter
     private lateinit var rowDateTime: LinearLayout
     private lateinit var rowDateTimeAnim: Animation
@@ -103,11 +104,9 @@ class RouteActivity : AppCompatActivity() {
         tvDirection.text = direction.title
         tvDirection.isSelected = true
 
-        route = direction.route
-        stopListAdapter = StopListAdapter(
-            applicationContext, route
-        )
-        lvRoute.adapter = stopListAdapter
+        route = ArrayList(direction.route)
+        loadedRoute = ArrayList(route)
+        populateListView(loadedRoute)
 
         announce(R.raw.liniq)
         mediaPlayer.setOnCompletionListener {
@@ -124,8 +123,8 @@ class RouteActivity : AppCompatActivity() {
             }
         }
 
-        if (route.size > 0) {
-            val stop = route[0]
+        if (loadedRoute.size > 0) {
+            val stop = loadedRoute[0]
             stop.isNext = true
             updateStopInfoRow(stop)
 
@@ -149,13 +148,21 @@ class RouteActivity : AppCompatActivity() {
         rowDateTime.startAnimation(rowDateTimeAnim)
     }
 
+    private fun populateListView(content: ArrayList<Stop>) {
+        stopListAdapter = StopListAdapter(
+            applicationContext, content
+        )
+        lvRoute.adapter = stopListAdapter
+    }
+
     private fun updateStopInfoRow(stop: Stop) {
-        tvStopTitle.text = stop.toString()
         tvStopTitle.isSelected = true
         if (stop.isCurrent) {
+            tvStopTitle.text = stop.toString()
             tvNextStopInfoRow.text = tvNextStopInfoRow.context.getText(R.string.stop_)
             tvStopTitle.setTextColor(tvStopTitle.context.getColor(R.color.red))
         } else {
+            tvStopTitle.text = route.find { it.isNext }.toString()
             tvNextStopInfoRow.text = tvNextStopInfoRow.context.getText(R.string.next_stop_)
             tvStopTitle.setTextColor(tvStopTitle.context.getColor(R.color.green))
         }
@@ -198,30 +205,50 @@ class RouteActivity : AppCompatActivity() {
                     override fun onLocationResult(locationResult: LocationResult) {
                         val currentLocation: Location? = locationResult.lastLocation
                         if (currentLocation != null) {
-                            val distance = FloatArray(1)
-                            Location.distanceBetween(
-                                currentLocation.latitude,
-                                currentLocation.longitude,
-                                route[0].location.latitude,
-                                route[0].location.longitude,
-                                distance
-                            )
-                            if (distance[0] < DESTINATION_RADIUS && !mediaPlayer.isPlaying) {
-                                route[0].isCurrent = true
-                                route[0].isNext = false
-                                route[1].isNext = true
-                                stopListAdapter.notifyDataSetChanged()
-                                updateStopInfoRow(route[0])
-                                rowDateTimeAnim.startNow()
-                                announce(R.raw.spirka)
-                            }
+                            route.forEach { stop ->
+                                val index = route.indexOf(stop)
 
-                            if (route.size > 1 && distance[0] > DESTINATION_RADIUS && route[0].isCurrent && !mediaPlayer.isPlaying) {
-                                route.removeAt(0)
-                                stopListAdapter.notifyDataSetChanged()
-                                updateStopInfoRow(route[0])
-                                rowDateTimeAnim.startNow()
-                                announce(R.raw.sledvashta_spirka)
+                                val distance = FloatArray(1)
+                                Location.distanceBetween(
+                                    currentLocation.latitude,
+                                    currentLocation.longitude,
+                                    stop.location.latitude,
+                                    stop.location.longitude,
+                                    distance
+                                )
+
+                                //Announce next stop
+                                if (route.any { !it.isAnnounced } && distance[0] > DESTINATION_RADIUS && stop.isCurrent && !mediaPlayer.isPlaying) {
+                                    stop.isCurrent = false
+                                    loadedRoute.removeAt(0)
+                                    populateListView(loadedRoute)
+                                    updateStopInfoRow(stop)
+                                    rowDateTimeAnim.startNow()
+                                    announce(R.raw.sledvashta_spirka)
+                                }
+
+                                //Announce current stop
+                                if (distance[0] < DESTINATION_RADIUS && !stop.isAnnounced && !mediaPlayer.isPlaying) {
+                                    loadedRoute[0].isCurrent = false
+                                    if (loadedRoute.size > 1) {
+                                        loadedRoute[1].isNext = false
+                                    }
+                                    loadedRoute[0].isNext = false
+                                    loadedRoute = ArrayList(route.drop(index))
+                                    populateListView(loadedRoute)
+                                    loadedRoute[0].isCurrent = true
+                                    loadedRoute[0].isNext = false
+                                    if (route.indexOf(stop) < route.size - 1) {
+                                        loadedRoute[1].isNext = true
+                                    }
+                                    updateStopInfoRow(stop)
+                                    rowDateTimeAnim.startNow()
+                                    announce(R.raw.spirka)
+                                    stop.isAnnounced = true
+                                    loadedRoute[0].isAnnounced = true
+                                } else {
+                                    return@forEach
+                                }
                             }
                         }
                     }
