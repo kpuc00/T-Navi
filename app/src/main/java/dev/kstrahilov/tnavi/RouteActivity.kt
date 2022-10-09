@@ -30,8 +30,9 @@ class RouteActivity : AppCompatActivity() {
     private lateinit var tvTimeColon: TextView
     private lateinit var lvRoute: ListView
     private lateinit var lineNumber: String
-    private var lineAnnouncement: Int? = null
+    private var lineAnnouncement: Int = 0
     private lateinit var direction: Direction
+    private var directionAnnouncement: Int = 0
     private lateinit var route: ArrayList<Stop>
     private lateinit var loadedRoute: ArrayList<Stop>
     private lateinit var stopListAdapter: StopListAdapter
@@ -75,9 +76,14 @@ class RouteActivity : AppCompatActivity() {
         lineAnnouncement = if (strLineAnnouncement != null && strLineAnnouncement != "null") {
             strLineAnnouncement.toInt()
         } else {
-            null
+            0
         }
         direction = intent.getParcelableExtra<Direction>("direction") as Direction
+        directionAnnouncement = if (direction.announcementFilePath != null) {
+            direction.announcementFilePath!!
+        } else {
+            0
+        }
 
         loadingScreen = findViewById(R.id.loading_screen)
         logoLoading = findViewById(R.id.logo_loading)
@@ -109,16 +115,22 @@ class RouteActivity : AppCompatActivity() {
         populateListView(loadedRoute)
 
         announce(R.raw.liniq)
-        mediaPlayer.setOnCompletionListener {
-            if (lineAnnouncement !== null) {
-                announce(lineAnnouncement!!)
-            }
+        if (lineAnnouncement != 0) {
             mediaPlayer.setOnCompletionListener {
+                announce(lineAnnouncement)
+            }
+        } else {
+            if (mediaPlayer.isPlaying) {
+                mediaPlayer.setOnCompletionListener {
+                    announce(R.raw.posoka)
+                    mediaPlayer.setOnCompletionListener {
+                        announce(directionAnnouncement)
+                    }
+                }
+            } else {
                 announce(R.raw.posoka)
                 mediaPlayer.setOnCompletionListener {
-                    if (direction.announcementFilePath !== null) {
-                        announce(direction.announcementFilePath!!)
-                    }
+                    announce(directionAnnouncement)
                 }
             }
         }
@@ -162,7 +174,7 @@ class RouteActivity : AppCompatActivity() {
             tvNextStopInfoRow.text = tvNextStopInfoRow.context.getText(R.string.stop_)
             tvStopTitle.setTextColor(tvStopTitle.context.getColor(R.color.red))
         } else {
-            tvStopTitle.text = route.find { it.isNext }.toString()
+            tvStopTitle.text = stop.toString()
             tvNextStopInfoRow.text = tvNextStopInfoRow.context.getText(R.string.next_stop_)
             tvStopTitle.setTextColor(tvStopTitle.context.getColor(R.color.green))
         }
@@ -179,8 +191,10 @@ class RouteActivity : AppCompatActivity() {
     }
 
     private fun announce(audio: Int) {
-        mediaPlayer = MediaPlayer.create(this, audio)
-        mediaPlayer.start()
+        if (audio != 0) {
+            mediaPlayer = MediaPlayer.create(this, audio)
+            mediaPlayer.start()
+        }
     }
 
     private fun startGPSUpdates() {
@@ -220,11 +234,17 @@ class RouteActivity : AppCompatActivity() {
                                 //Announce next stop
                                 if (route.any { !it.isAnnounced } && distance[0] > DESTINATION_RADIUS && stop.isCurrent && !mediaPlayer.isPlaying) {
                                     stop.isCurrent = false
+                                    val nextStop = route[index+1]
                                     loadedRoute.removeAt(0)
                                     populateListView(loadedRoute)
-                                    updateStopInfoRow(stop)
+                                    updateStopInfoRow(nextStop)
                                     rowDateTimeAnim.startNow()
                                     announce(R.raw.sledvashta_spirka)
+                                    mediaPlayer.setOnCompletionListener {
+                                        if (nextStop.announcementFilePath != null) {
+                                            announce(nextStop.announcementFilePath!!)
+                                        }
+                                    }
                                 }
 
                                 //Announce current stop
@@ -244,6 +264,11 @@ class RouteActivity : AppCompatActivity() {
                                     updateStopInfoRow(stop)
                                     rowDateTimeAnim.startNow()
                                     announce(R.raw.spirka)
+                                    mediaPlayer.setOnCompletionListener {
+                                        if (stop.announcementFilePath != null) {
+                                            announce(stop.announcementFilePath!!)
+                                        }
+                                    }
                                     stop.isAnnounced = true
                                     loadedRoute[0].isAnnounced = true
                                 } else {
