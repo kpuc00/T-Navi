@@ -56,7 +56,7 @@ class RouteActivity : AppCompatActivity() {
         alert.setPositiveButton(application.getString(R.string.yes)) { _, _ ->
             stopGPSUpdates()
             mediaPlayer.release()
-            finish()
+            super.onBackPressed()
         }
         alert.setNegativeButton(application.getString(R.string.no)) { _, _ -> }
         val alertDialog = alert.create()
@@ -90,7 +90,6 @@ class RouteActivity : AppCompatActivity() {
             loadingScreen.visibility = View.GONE
             initializeApp()
         }, 10000)
-
     }
 
     private fun initializeApp() {
@@ -227,7 +226,7 @@ class RouteActivity : AppCompatActivity() {
                                 )
 
                                 //Announce next stop
-                                if (route.any { !it.isAnnounced } && distance[0] > DESTINATION_RADIUS && stop.isCurrent && !mediaPlayer.isPlaying) {
+                                if (loadedRoute.size > 1 && distance[0] > DESTINATION_RADIUS && stop.isCurrent && !mediaPlayer.isPlaying) {
                                     stop.isCurrent = false
                                     val nextStop = route[index + 1]
                                     loadedRoute.removeAt(0)
