@@ -35,7 +35,6 @@
             android:text="@string/start" />
 
         <Button
-            android:enabled="false"
             android:id="@+id/btn_settings"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"

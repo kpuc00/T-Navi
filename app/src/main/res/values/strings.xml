@@ -28,4 +28,10 @@
     <string name="logo">logo</string>
     <string name="location_access_denied">Маршрутът няма да се следи!</string>
     <string name="enable_location">Включете местоположението на устройството и рестартирайте пътуването!</string>
+    <string name="stop_title">Име на спирката: *</string>
+    <string name="select_file_text">Посочете файл за гласово оповестяване на спирката:</string>
+    <string name="choose_file">Избери файл</string>
+    <string name="pick_location">Посочете местоположението на спирката на картата: *</string>
+    <string name="label_create_stop">Създаване на спирка:</string>
+    <string name="action_save">Запазване</string>
 </resources>

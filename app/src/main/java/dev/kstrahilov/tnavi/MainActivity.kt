@@ -11,6 +11,7 @@ import androidx.core.app.ActivityCompat
 
 class MainActivity : AppCompatActivity() {
     private lateinit var btnStart: Button
+    private lateinit var btnSettings: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +30,12 @@ class MainActivity : AppCompatActivity() {
             } else {
                 requestPermission()
             }
+        }
+
+        btnSettings=findViewById(R.id.btn_settings)
+        btnSettings.setOnClickListener{
+            val intent = Intent(this, CreateStop::class.java)
+            startActivity(intent)
         }
     }
 
