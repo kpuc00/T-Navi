@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class Line(
-    var number: String, var directions: ArrayList<Direction>, var announcementFilePath: Int?
+    var number: String, var directions: ArrayList<Direction>, var announcementFilePath: Int = 0
 ) : Parcelable {
     override fun toString(): String {
         return number

@@ -4,7 +4,11 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-class Direction(var title: String, var route: ArrayList<Stop>, var announcementFilePath: Int?) :
+class Direction(
+    var title: String,
+    var route: ArrayList<Stop>,
+    var announcementFilePath: Int? = null
+) :
     Parcelable {
     override fun toString(): String {
         return title

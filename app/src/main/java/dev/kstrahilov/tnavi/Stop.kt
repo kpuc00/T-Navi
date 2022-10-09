@@ -8,7 +8,7 @@ import kotlinx.parcelize.Parcelize
 class Stop(
     var title: String,
     var location: LatLng = LatLng(0.0, 0.0),
-    var announcementFilePath: Int?,
+    var announcementFilePath: Int? = null,
     var isCurrent: Boolean = false,
     var isNext: Boolean = false,
     var isAnnounced: Boolean = false,

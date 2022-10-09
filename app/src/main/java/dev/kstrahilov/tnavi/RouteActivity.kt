@@ -73,10 +73,8 @@ class RouteActivity : AppCompatActivity() {
         val intent = intent
         lineNumber = intent.getStringExtra("line").toString()
         val strLineAnnouncement = intent.getStringExtra("lineAnnouncement")
-        lineAnnouncement = if (strLineAnnouncement != null && strLineAnnouncement != "null") {
-            strLineAnnouncement.toInt()
-        } else {
-            0
+        if (strLineAnnouncement != null) {
+            lineAnnouncement = strLineAnnouncement.toInt()
         }
         direction = intent.getParcelableExtra<Direction>("direction") as Direction
         directionAnnouncement = if (direction.announcementFilePath != null) {
@@ -115,12 +113,9 @@ class RouteActivity : AppCompatActivity() {
         populateListView(loadedRoute)
 
         announce(R.raw.liniq)
-        if (lineAnnouncement != 0) {
-            mediaPlayer.setOnCompletionListener {
+        mediaPlayer.setOnCompletionListener {
+            if (lineAnnouncement != 0) {
                 announce(lineAnnouncement)
-            }
-        } else {
-            if (mediaPlayer.isPlaying) {
                 mediaPlayer.setOnCompletionListener {
                     announce(R.raw.posoka)
                     mediaPlayer.setOnCompletionListener {
@@ -234,7 +229,7 @@ class RouteActivity : AppCompatActivity() {
                                 //Announce next stop
                                 if (route.any { !it.isAnnounced } && distance[0] > DESTINATION_RADIUS && stop.isCurrent && !mediaPlayer.isPlaying) {
                                     stop.isCurrent = false
-                                    val nextStop = route[index+1]
+                                    val nextStop = route[index + 1]
                                     loadedRoute.removeAt(0)
                                     populateListView(loadedRoute)
                                     updateStopInfoRow(nextStop)
