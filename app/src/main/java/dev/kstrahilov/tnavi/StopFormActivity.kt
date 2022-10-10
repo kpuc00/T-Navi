@@ -8,7 +8,11 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -16,18 +20,22 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.io.File
+import java.lang.reflect.Type
 
 
-class CreateStop : AppCompatActivity() {
+class StopFormActivity : AppCompatActivity() {
+    private lateinit var stopIdRow: LinearLayout
+    private lateinit var tvStopId: TextView
     private lateinit var etStopTitle: EditText
     private lateinit var selectedLocation: LatLng
     private var stop: Stop? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_create_stop)
-        title = application.getString(R.string.label_create_stop)
+        setContentView(R.layout.activity_stop_form)
+
         val intent = intent
         try {
             stop = (intent.getParcelableExtra("stop") as Stop?)!!
@@ -37,6 +45,13 @@ class CreateStop : AppCompatActivity() {
         etStopTitle = findViewById(R.id.et_stop_title)
 
         if (stop != null) {
+            title = application.getString(R.string.label_edit_stop)
+
+            stopIdRow = findViewById(R.id.stop_id_row)
+            tvStopId = findViewById(R.id.tv_stop_id)
+            tvStopId.text = stop!!.id.toString()
+            stopIdRow.visibility = View.VISIBLE
+
             etStopTitle.setText(stop!!.title)
             etStopTitle.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -48,6 +63,8 @@ class CreateStop : AppCompatActivity() {
                 }
 
             })
+        } else {
+            title = application.getString(R.string.label_create_stop)
         }
 
         val mapFragment = supportFragmentManager.findFragmentById(
@@ -102,16 +119,48 @@ class CreateStop : AppCompatActivity() {
             stops.add(Stop(title = etStopTitle.text.toString().trim(), location = selectedLocation))
         }
 
-        val path = "stops.json"
+        val gson = Gson()
+
+        val path: String = applicationContext.filesDir.toString()
+        val fileName = "/stops.json"
+        val file = File(path, fileName)
+
         try {
-            File(path).createNewFile()
-            File(path).printWriter().use {
-                val gson = Gson()
-                val jsonString = gson.toJson(stops)
-                it.write(jsonString)
+            if (file.exists()) {
+                val readJson = file.readText(Charsets.UTF_8)
+                val stopListType: Type = object : TypeToken<ArrayList<Stop?>?>() {}.type
+                val readStops: ArrayList<Stop> = gson.fromJson(readJson, stopListType)
+                readStops.addAll(stops)
+                val jsonString: String = gson.toJson(readStops)
+                file.writeText(jsonString, Charsets.UTF_8)
+                checkIfDataWritten(file, jsonString, stops[0].title)
+            } else {
+                val jsonString: String = gson.toJson(stops)
+                file.writeText(jsonString, Charsets.UTF_8)
+                checkIfDataWritten(file, jsonString, stops[0].title)
             }
         } catch (e: Exception) {
+            Toast.makeText(
+                applicationContext, applicationContext.getString(R.string.error), Toast.LENGTH_LONG
+            ).show()
             e.printStackTrace()
+        }
+    }
+
+    private fun checkIfDataWritten(file: File, jsonString: String, stopTitleToDisplay: String) {
+        if (file.readText(Charsets.UTF_8) == jsonString) {
+            Toast.makeText(
+                applicationContext,
+                "${applicationContext.getString(R.string.stop_)} $stopTitleToDisplay ${
+                    applicationContext.getString(R.string.was_created)
+                }",
+                Toast.LENGTH_LONG
+            ).show()
+            finish()
+        } else {
+            Toast.makeText(
+                applicationContext, applicationContext.getString(R.string.error), Toast.LENGTH_LONG
+            ).show()
         }
     }
 
