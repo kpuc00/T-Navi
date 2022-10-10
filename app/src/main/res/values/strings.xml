@@ -34,4 +34,8 @@
     <string name="pick_location">Посочете местоположението на спирката на картата: *</string>
     <string name="label_create_stop">Създаване на спирка:</string>
     <string name="action_save">Запазване</string>
+    <string name="stops_manager">Мениджър на спирки</string>
+    <string name="lines_manager">Мениджър на линии</string>
+    <string name="error">Възникна грешка. Моля, опитайте по-късно!</string>
+    <string name="action_create">Създаване</string>
 </resources>

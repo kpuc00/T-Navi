@@ -32,9 +32,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        btnSettings=findViewById(R.id.btn_settings)
-        btnSettings.setOnClickListener{
-            val intent = Intent(this, CreateStop::class.java)
+        btnSettings = findViewById(R.id.btn_settings)
+        btnSettings.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }
     }
