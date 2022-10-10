@@ -42,4 +42,11 @@
     <string name="was_created">беше създадена</string>
     <string name="id_">ID:</string>
     <string name="action_delete">Изтриване</string>
+    <string name="export_data">Експортиране на всички данни</string>
+    <string name="import_data">Импортиране на данни</string>
+    <string name="storage_access_denied">Нужен е достъп до файловете, за да използвате системата!</string>
+    <string name="gps_status">Статус на местоположението</string>
+    <string name="data_exported">Данните бяха експортирани в папката /Documents/T-Navi</string>
+    <string name="data_imported">Данните бяха импортирани успешно в системата!</string>
+    <string name="import_data_message">"ВНИМАНИЕ! Това действие ще замести настоящите данни в системата. Желаете ли да продължите?\n\nПомощ: Можете да експортирате данните си, за да избегнете загуби."</string>
 </resources>

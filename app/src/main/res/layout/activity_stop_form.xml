@@ -61,7 +61,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/choose_file"
-                app:icon="@drawable/ic_baseline_file_upload_24"
+                app:icon="@drawable/ic_baseline_file_upload_white_24"
                 app:iconGravity="textStart" />
         </LinearLayout>
 

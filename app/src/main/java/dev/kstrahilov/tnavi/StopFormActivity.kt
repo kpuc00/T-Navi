@@ -187,17 +187,6 @@ class StopFormActivity : AppCompatActivity() {
         )
     }
 
-//    fun addObject(path: String, name: String, value: String) {
-//        val gson = Gson()
-//        val reader = FileReader(File(path))
-//        val type = object : TypeToken<Map<String, String>>() {}.type
-//        println("Type: $type")
-//        val existingJson = gson.fromJson<Map<String, String>>(JsonReader(reader), type)
-//        println("Existing Json: $existingJson")
-//        val newJsonMap = existingJson.plus(Pair(name, value))
-//        FileWriter(File(path)).use { writer -> writer.write(gson.toJson(newJsonMap)) }
-//    }
-
     private fun bitmapFromVector(context: Context, vectorResId: Int): BitmapDescriptor {
         val vectorDrawable = ContextCompat.getDrawable(context, vectorResId)
         vectorDrawable!!.setBounds(

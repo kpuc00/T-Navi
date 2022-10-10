@@ -25,17 +25,26 @@ class StopManager : AppCompatActivity(), AdapterView.OnItemClickListener {
 
         lvAllStops = findViewById(R.id.lv_all_stops)
 
+        loadStops()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadStops()
+    }
+
+    private fun loadStops() {
         val gson = Gson()
         val path: String = applicationContext.filesDir.toString()
         val fileName = "/stops.json"
         val file = File(path, fileName)
 
-        if (file.exists()) {
+        stops = if (file.exists()) {
             val readJson = file.readText(Charsets.UTF_8)
             val stopListType: Type = object : TypeToken<ArrayList<Stop?>?>() {}.type
-            stops = gson.fromJson(readJson, stopListType)
+            gson.fromJson(readJson, stopListType)
         } else {
-            stops = ArrayList()
+            ArrayList()
         }
 
         lvAllStops.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, stops)

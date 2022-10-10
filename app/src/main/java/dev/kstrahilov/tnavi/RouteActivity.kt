@@ -22,6 +22,7 @@ import com.google.android.gms.location.*
 class RouteActivity : AppCompatActivity() {
     private lateinit var locationRequest: LocationRequest
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private lateinit var gpsStattus: ImageView
     private lateinit var locationCallback: LocationCallback
     private lateinit var loadingScreen: LinearLayout
     private lateinit var logoLoading: ImageView
@@ -81,6 +82,11 @@ class RouteActivity : AppCompatActivity() {
             direction.announcementFilePath!!
         } else {
             0
+        }
+
+        gpsStattus = findViewById(R.id.gps_status)
+        if (!checkPermissions()) {
+            requestPermission()
         }
 
         loadingScreen = findViewById(R.id.loading_screen)
@@ -330,12 +336,14 @@ class RouteActivity : AppCompatActivity() {
 
         if (requestCode == PERMISSION_REQUEST_ACCESS_LOCATION) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                gpsStattus.visibility = View.GONE
                 startGPSUpdates()
             } else {
+                gpsStattus.visibility = View.VISIBLE
                 Toast.makeText(
                     applicationContext,
                     application.getString(R.string.location_access_denied),
-                    Toast.LENGTH_SHORT
+                    Toast.LENGTH_LONG
                 ).show()
             }
         }

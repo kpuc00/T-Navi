@@ -32,8 +32,16 @@ class SettingsListAdapter(var context: Context, private var array: Array<String>
                 tvTitle.text = context.getString(R.string.stops_manager)
             }
             "lineManager" -> {
-                ivIcon.setImageResource(R.drawable.ic_baseline_numbers_24)
+                ivIcon.setImageResource(R.drawable.ic_baseline_format_list_numbered_24)
                 tvTitle.text = context.getString(R.string.lines_manager)
+            }
+            "exportData" -> {
+                ivIcon.setImageResource(R.drawable.ic_baseline_download_24)
+                tvTitle.text = context.getString(R.string.export_data)
+            }
+            "importData" -> {
+                ivIcon.setImageResource(R.drawable.ic_baseline_file_upload_blue_24)
+                tvTitle.text = context.getString(R.string.import_data)
             }
             else -> {
                 ivIcon.visibility = View.INVISIBLE
