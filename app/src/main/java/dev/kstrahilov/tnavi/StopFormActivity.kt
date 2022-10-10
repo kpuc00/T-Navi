@@ -98,13 +98,26 @@ class StopFormActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        if (stop != null) {
+            menuInflater.inflate(R.menu.menu_delete, menu)
+        }
         menuInflater.inflate(R.menu.menu_save, menu)
+
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_save -> {
             saveStop()
+
+            true
+        }
+        R.id.action_delete -> {
+            Toast.makeText(
+                applicationContext,
+                application.getString(R.string.action_delete),
+                Toast.LENGTH_SHORT
+            ).show()
 
             true
         }
