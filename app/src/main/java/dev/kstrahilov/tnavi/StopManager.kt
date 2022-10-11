@@ -9,14 +9,11 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import java.io.File
-import java.lang.reflect.Type
 
 class StopManager : AppCompatActivity(), AdapterView.OnItemClickListener {
     private lateinit var lvAllStops: ListView
     private lateinit var stops: ArrayList<Stop>
+    private val operations = Operations()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,29 +21,11 @@ class StopManager : AppCompatActivity(), AdapterView.OnItemClickListener {
         title = application.getString(R.string.stops_manager)
 
         lvAllStops = findViewById(R.id.lv_all_stops)
-
-        loadStops()
     }
 
     override fun onResume() {
         super.onResume()
-        loadStops()
-    }
-
-    private fun loadStops() {
-        val gson = Gson()
-        val path: String = applicationContext.filesDir.toString()
-        val fileName = "/stops.json"
-        val file = File(path, fileName)
-
-        stops = if (file.exists()) {
-            val readJson = file.readText(Charsets.UTF_8)
-            val stopListType: Type = object : TypeToken<ArrayList<Stop?>?>() {}.type
-            gson.fromJson(readJson, stopListType)
-        } else {
-            ArrayList()
-        }
-
+        stops = operations.loadStopsFromInternalStorage(applicationContext)
         lvAllStops.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, stops)
         lvAllStops.onItemClickListener = this
     }

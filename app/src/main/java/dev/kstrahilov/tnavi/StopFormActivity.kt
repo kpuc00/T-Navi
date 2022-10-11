@@ -13,6 +13,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -31,6 +32,7 @@ class StopFormActivity : AppCompatActivity() {
     private lateinit var etStopTitle: EditText
     private lateinit var selectedLocation: LatLng
     private var stop: Stop? = null
+    private var gson = Gson()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,11 +115,15 @@ class StopFormActivity : AppCompatActivity() {
             true
         }
         R.id.action_delete -> {
-            Toast.makeText(
-                applicationContext,
-                application.getString(R.string.action_delete),
-                Toast.LENGTH_SHORT
-            ).show()
+            val alert = AlertDialog.Builder(this)
+            alert.setTitle(application.getString(R.string.action_delete))
+            alert.setMessage(application.getString(R.string.stop_delete))
+            alert.setPositiveButton(application.getString(R.string.yes)) { _, _ ->
+                deleteStop()
+            }
+            alert.setNegativeButton(application.getString(R.string.no)) { _, _ -> }
+            val alertDialog = alert.create()
+            alertDialog.show()
 
             true
         }
@@ -132,8 +138,6 @@ class StopFormActivity : AppCompatActivity() {
             stops.add(Stop(title = etStopTitle.text.toString().trim(), location = selectedLocation))
         }
 
-        val gson = Gson()
-
         val path: String = applicationContext.filesDir.toString()
         val fileName = "/stops.json"
         val file = File(path, fileName)
@@ -143,7 +147,16 @@ class StopFormActivity : AppCompatActivity() {
                 val readJson = file.readText(Charsets.UTF_8)
                 val stopListType: Type = object : TypeToken<ArrayList<Stop?>?>() {}.type
                 val readStops: ArrayList<Stop> = gson.fromJson(readJson, stopListType)
+
+                //Remove old stop to keep only the new one
+                if (stop != null) {
+                    val readStop = readStops.filter {
+                        it.id == stop!!.id
+                    }[0]
+                    readStops.remove(readStop)
+                }
                 readStops.addAll(stops)
+
                 val jsonString: String = gson.toJson(readStops)
                 file.writeText(jsonString, Charsets.UTF_8)
                 checkIfDataWritten(file, jsonString, stops[0].title)
@@ -160,15 +173,70 @@ class StopFormActivity : AppCompatActivity() {
         }
     }
 
+    private fun deleteStop() {
+        val path: String = applicationContext.filesDir.toString()
+        val fileName = "/stops.json"
+        val file = File(path, fileName)
+
+        try {
+            if (file.exists()) {
+                val readJson = file.readText(Charsets.UTF_8)
+                val stopListType: Type = object : TypeToken<ArrayList<Stop?>?>() {}.type
+                val readStops: ArrayList<Stop> = gson.fromJson(readJson, stopListType)
+
+                //Remove old stop to keep only the new one
+                if (stop != null) {
+                    val readStop = readStops.filter {
+                        it.id == stop!!.id
+                    }[0]
+                    readStops.remove(readStop)
+                    val jsonString: String = gson.toJson(readStops)
+                    file.writeText(jsonString, Charsets.UTF_8)
+                    Toast.makeText(
+                        applicationContext,
+                        "${applicationContext.getString(R.string.stop_)} ${stop!!.title} ${
+                            applicationContext.getString(R.string.was_deleted)
+                        }",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    finish()
+                }
+            } else {
+                Toast.makeText(
+                    applicationContext,
+                    applicationContext.getString(R.string.error),
+                    Toast.LENGTH_LONG
+                ).show()
+                finish()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(
+                applicationContext, applicationContext.getString(R.string.error), Toast.LENGTH_LONG
+            ).show()
+            e.printStackTrace()
+            finish()
+        }
+    }
+
     private fun checkIfDataWritten(file: File, jsonString: String, stopTitleToDisplay: String) {
         if (file.readText(Charsets.UTF_8) == jsonString) {
-            Toast.makeText(
-                applicationContext,
-                "${applicationContext.getString(R.string.stop_)} $stopTitleToDisplay ${
-                    applicationContext.getString(R.string.was_created)
-                }",
-                Toast.LENGTH_LONG
-            ).show()
+            if (stop != null) {
+                Toast.makeText(
+                    applicationContext,
+                    "${applicationContext.getString(R.string.stop_)} $stopTitleToDisplay ${
+                        applicationContext.getString(R.string.was_modified)
+                    }",
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
+                Toast.makeText(
+                    applicationContext,
+                    "${applicationContext.getString(R.string.stop_)} $stopTitleToDisplay ${
+                        applicationContext.getString(R.string.was_created)
+                    }",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
             finish()
         } else {
             Toast.makeText(

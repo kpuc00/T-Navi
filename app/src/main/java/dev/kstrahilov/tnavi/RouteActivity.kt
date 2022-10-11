@@ -22,7 +22,7 @@ import com.google.android.gms.location.*
 class RouteActivity : AppCompatActivity() {
     private lateinit var locationRequest: LocationRequest
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private lateinit var gpsStattus: ImageView
+    private lateinit var gpsStatus: ImageView
     private lateinit var locationCallback: LocationCallback
     private lateinit var loadingScreen: LinearLayout
     private lateinit var logoLoading: ImageView
@@ -45,7 +45,7 @@ class RouteActivity : AppCompatActivity() {
 
     companion object {
         private const val PERMISSION_REQUEST_ACCESS_LOCATION = 100
-        private const val UPDATE_DEFAULT_INTERVAL = 10L
+        private const val UPDATE_DEFAULT_INTERVAL = 5L
         private const val FAST_UPDATE_INTERVAL = 5L
         private const val DESTINATION_RADIUS = 50
     }
@@ -84,7 +84,7 @@ class RouteActivity : AppCompatActivity() {
             0
         }
 
-        gpsStattus = findViewById(R.id.gps_status)
+        gpsStatus = findViewById(R.id.gps_status)
         if (!checkPermissions()) {
             requestPermission()
         }
@@ -336,10 +336,10 @@ class RouteActivity : AppCompatActivity() {
 
         if (requestCode == PERMISSION_REQUEST_ACCESS_LOCATION) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                gpsStattus.visibility = View.GONE
+                gpsStatus.visibility = View.GONE
                 startGPSUpdates()
             } else {
-                gpsStattus.visibility = View.VISIBLE
+                gpsStatus.visibility = View.VISIBLE
                 Toast.makeText(
                     applicationContext,
                     application.getString(R.string.location_access_denied),
