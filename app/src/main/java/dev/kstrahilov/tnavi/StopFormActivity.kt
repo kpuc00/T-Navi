@@ -73,6 +73,7 @@ class StopFormActivity : AppCompatActivity() {
             R.id.map
         ) as? SupportMapFragment
         mapFragment?.getMapAsync { googleMap ->
+            googleMap.mapType = GoogleMap.MAP_TYPE_HYBRID
             if (stop != null) {
                 googleMap.addMarker(
                     MarkerOptions().position(stop!!.location)
@@ -176,7 +177,9 @@ class StopFormActivity : AppCompatActivity() {
             }
         } catch (e: Exception) {
             Toast.makeText(
-                applicationContext, applicationContext.getString(R.string.error_message), Toast.LENGTH_LONG
+                applicationContext,
+                applicationContext.getString(R.string.error_message),
+                Toast.LENGTH_LONG
             ).show()
             e.printStackTrace()
         }
@@ -220,7 +223,9 @@ class StopFormActivity : AppCompatActivity() {
             }
         } catch (e: Exception) {
             Toast.makeText(
-                applicationContext, applicationContext.getString(R.string.error_message), Toast.LENGTH_LONG
+                applicationContext,
+                applicationContext.getString(R.string.error_message),
+                Toast.LENGTH_LONG
             ).show()
             e.printStackTrace()
             finish()
@@ -249,7 +254,9 @@ class StopFormActivity : AppCompatActivity() {
             finish()
         } else {
             Toast.makeText(
-                applicationContext, applicationContext.getString(R.string.error_message), Toast.LENGTH_LONG
+                applicationContext,
+                applicationContext.getString(R.string.error_message),
+                Toast.LENGTH_LONG
             ).show()
         }
     }
@@ -260,7 +267,7 @@ class StopFormActivity : AppCompatActivity() {
         circle?.remove()
         circle = googleMap.addCircle(
             CircleOptions().center(latLng).radius(50.0)
-                .strokeColor(ContextCompat.getColor(this, R.color.blue))
+                .strokeColor(ContextCompat.getColor(this, R.color.green))
         )
     }
 

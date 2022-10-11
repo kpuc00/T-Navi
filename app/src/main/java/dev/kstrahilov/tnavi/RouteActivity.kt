@@ -19,7 +19,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.google.android.gms.location.*
 
-class RouteActivity : AppCompatActivity() {
+class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
     private lateinit var locationRequest: LocationRequest
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var gpsStatus: ImageView
@@ -165,6 +165,7 @@ class RouteActivity : AppCompatActivity() {
             applicationContext, content
         )
         lvRoute.adapter = stopListAdapter
+        lvRoute.onItemClickListener = this
     }
 
     private fun updateStopInfoRow(stop: Stop) {
@@ -298,6 +299,13 @@ class RouteActivity : AppCompatActivity() {
         try {
             fusedLocationProviderClient.removeLocationUpdates(locationCallback)
         } catch (_: UninitializedPropertyAccessException) {
+        }
+    }
+
+    override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        val stop: Stop = loadedRoute[position]
+        if (!mediaPlayer.isPlaying) {
+            stop.announcementFilePath?.let { announce(it) }
         }
     }
 
