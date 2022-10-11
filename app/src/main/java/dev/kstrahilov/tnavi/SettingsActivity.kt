@@ -70,7 +70,7 @@ class SettingsActivity : AppCompatActivity(), OnItemClickListener {
             else -> {
                 Toast.makeText(
                     applicationContext,
-                    application.getString(R.string.error),
+                    application.getString(R.string.error_message),
                     Toast.LENGTH_SHORT
                 ).show()
             }

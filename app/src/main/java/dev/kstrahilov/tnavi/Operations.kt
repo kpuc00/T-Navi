@@ -116,7 +116,7 @@ class Operations {
         } catch (e: Exception) {
             Toast.makeText(
                 applicationContext,
-                applicationContext.getString(R.string.error),
+                applicationContext.getString(R.string.error_message),
                 Toast.LENGTH_LONG
             ).show()
             e.printStackTrace()

@@ -294,7 +294,7 @@ class ChooseLineActivity : AppCompatActivity(), OnItemClickListener {
         val route11: ArrayList<Stop> = ArrayList()
         route11.add(
             Stop(
-                title = "ул. Brunelleschiweg 12",
+                title = "ул. Brunelleschiweg",
                 location = LatLng(51.465377, 5.452131),
                 announcementFilePath = R.raw._8mi_dekemvri
             )
@@ -302,6 +302,18 @@ class ChooseLineActivity : AppCompatActivity(), OnItemClickListener {
         route11.add(Stop(title = "Светофара", location = LatLng(51.461966, 5.454300)))
         route11.add(Stop(title = "Джъмбо /Boschdijk/", location = LatLng(51.451085, 5.465096)))
         route11.add(Stop(title = "Пиаца", location = LatLng(51.441186, 5.476073)))
+
+        val routeDepo: ArrayList<Stop> = ArrayList()
+        routeDepo.add(Stop(title = "Пиаца", location = LatLng(51.441186, 5.476073)))
+        routeDepo.add(Stop(title = "Джъмбо /Boschdijk/", location = LatLng(51.451085, 5.465096)))
+        routeDepo.add(Stop(title = "Светофара", location = LatLng(51.461966, 5.454300)))
+        routeDepo.add(
+            Stop(
+                title = "ул. Brunelleschiweg",
+                location = LatLng(51.465377, 5.452131),
+                announcementFilePath = R.raw._8mi_dekemvri
+            )
+        )
 
         val route12: ArrayList<Stop> = ArrayList()
         route12.add(
@@ -365,6 +377,7 @@ class ChooseLineActivity : AppCompatActivity(), OnItemClickListener {
 
         val directions1: ArrayList<Direction> = ArrayList()
         directions1.add(Direction(title = "Пиаца", route11))
+        directions1.add(Direction(title = "ЗА ДЕПО", routeDepo))
         directions1.add(Direction(title = "Тест", route12))
         directions1.add(Direction(title = "Тест 2", route13))
         lines.add(Line(number = "1", directions1, R.raw._1))

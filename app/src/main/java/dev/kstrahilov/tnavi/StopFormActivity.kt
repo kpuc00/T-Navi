@@ -132,9 +132,18 @@ class StopFormActivity : AppCompatActivity() {
 
     private fun saveStop() {
         val stops: ArrayList<Stop> = ArrayList()
-        if (stop != null) {
+        if (stop != null && etStopTitle.text.toString() != "") {
             stops.add(stop!!)
         } else {
+            if (!this::selectedLocation.isInitialized || etStopTitle.text.toString() == "") {
+                val alert = AlertDialog.Builder(this)
+                alert.setTitle(application.getString(R.string.error))
+                alert.setMessage(application.getString(R.string.form_incomplete))
+                alert.setNegativeButton(application.getString(R.string.ok)) { _, _ -> }
+                val alertDialog = alert.create()
+                alertDialog.show()
+                return
+            }
             stops.add(Stop(title = etStopTitle.text.toString().trim(), location = selectedLocation))
         }
 
@@ -167,7 +176,7 @@ class StopFormActivity : AppCompatActivity() {
             }
         } catch (e: Exception) {
             Toast.makeText(
-                applicationContext, applicationContext.getString(R.string.error), Toast.LENGTH_LONG
+                applicationContext, applicationContext.getString(R.string.error_message), Toast.LENGTH_LONG
             ).show()
             e.printStackTrace()
         }
@@ -204,14 +213,14 @@ class StopFormActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(
                     applicationContext,
-                    applicationContext.getString(R.string.error),
+                    applicationContext.getString(R.string.error_message),
                     Toast.LENGTH_LONG
                 ).show()
                 finish()
             }
         } catch (e: Exception) {
             Toast.makeText(
-                applicationContext, applicationContext.getString(R.string.error), Toast.LENGTH_LONG
+                applicationContext, applicationContext.getString(R.string.error_message), Toast.LENGTH_LONG
             ).show()
             e.printStackTrace()
             finish()
@@ -240,7 +249,7 @@ class StopFormActivity : AppCompatActivity() {
             finish()
         } else {
             Toast.makeText(
-                applicationContext, applicationContext.getString(R.string.error), Toast.LENGTH_LONG
+                applicationContext, applicationContext.getString(R.string.error_message), Toast.LENGTH_LONG
             ).show()
         }
     }

@@ -37,7 +37,8 @@
     <string name="action_save">Запазване</string>
     <string name="stops_manager">Мениджър на спирки</string>
     <string name="lines_manager">Мениджър на линии</string>
-    <string name="error">Възникна грешка. Моля, опитайте по-късно!</string>
+    <string name="error">Грешка</string>
+    <string name="error_message">Възникна грешка. Моля, опитайте по-късно!</string>
     <string name="action_create">Създаване</string>
     <string name="was_created">беше създадена</string>
     <string name="was_modified">беше променена</string>
@@ -52,5 +53,7 @@
     <string name="data_exported">Данните бяха експортирани в папката /Documents/T-Navi</string>
     <string name="data_imported">Данните бяха импортирани успешно в системата!</string>
     <string name="import_data_message">"ВНИМАНИЕ! Това действие ще замести настоящите данни в системата. Желаете ли да продължите?\n\nПомощ: Можете да експортирате данните си, за да избегнете загуби."</string>
+    <string name="form_incomplete">Не сте попълнили задължителните полета! (*)</string>
+    <string name="ok">Ок</string>
 
 </resources>
