@@ -53,7 +53,7 @@
     <string name="gps_status">Статус на местоположението</string>
     <string name="data_exported">Данните бяха експортирани в папката /Documents/T-Navi</string>
     <string name="data_imported">Данните бяха импортирани успешно в системата!</string>
-    <string name="import_data_message">"ВНИМАНИЕ! Това действие ще замести настоящите данни в системата. Желаете ли да продължите?\n\nПомощ: Можете да експортирате данните си, за да избегнете загуби."</string>
+    <string name="import_data_message">"ВНИМАНИЕ!\n\nТова действие ще замести настоящите данни в системата. Желаете ли да продължите?"</string>
     <string name="form_incomplete">Не сте попълнили задължителните полета! (*)</string>
     <string name="ok">Ок</string>
     <string name="empty_list_stops">Няма спирки.</string>
@@ -65,9 +65,11 @@
     <string name="label_edit_direction">Промяна на посока:</string>
     <string name="label_create_direction">Създаване на посока:</string>
     <string name="direction_delete">Опитвате се да изтриете тази посока. Желаете ли да продължите?</string>
-    <string name="direction_">Посоката</string>
+    <string name="direction_">Дестинация</string>
     <string name="label_create_line">Създаване на линия:</string>
     <string name="line_number">Номер на линията: (*)</string>
     <string name="line_">Линия</string>
     <string name="line_exists">Опитвате се да създадете съществуваща линия!</string>
+    <string name="reset_data">Нулиране  с фабричните настройки</string>
+    <string name="reset_data_message">"ВНИМАНИЕ!\n\nТова действие ще нулира системата до нейните фабрични настройки по подразбиране като изтрие всички маршрути и спирки. Желаете ли да продължите?"</string>
 </resources>

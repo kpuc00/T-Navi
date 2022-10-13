@@ -73,6 +73,7 @@ class StopFormActivity : AppCompatActivity() {
             R.id.map
         ) as? SupportMapFragment
         mapFragment?.getMapAsync { googleMap ->
+            googleMap.setMyLocationEnabled(true)
             googleMap.mapType = GoogleMap.MAP_TYPE_HYBRID
             if (stop != null) {
                 googleMap.addMarker(

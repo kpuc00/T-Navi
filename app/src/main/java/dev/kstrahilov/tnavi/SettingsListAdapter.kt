@@ -43,6 +43,10 @@ class SettingsListAdapter(var context: Context, private var array: Array<String>
                 ivIcon.setImageResource(R.drawable.ic_baseline_file_upload_blue_24)
                 tvTitle.text = context.getString(R.string.import_data)
             }
+            "resetData" -> {
+                ivIcon.setImageResource(R.drawable.ic_baseline_refresh_24)
+                tvTitle.text = context.getString(R.string.reset_data)
+            }
             else -> {
                 ivIcon.visibility = View.INVISIBLE
                 tvTitle.text = item

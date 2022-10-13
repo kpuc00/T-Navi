@@ -27,7 +27,7 @@ class SettingsActivity : AppCompatActivity(), OnItemClickListener {
         title = application.getString(R.string.settings)
 
         lvSettings = findViewById(R.id.lv_settings)
-        settings = arrayOf("stopManager", "lineManager", "exportData", "importData")
+        settings = arrayOf("stopManager", "lineManager", "exportData", "importData", "resetData")
         settingsListAdapter = SettingsListAdapter(applicationContext, settings)
 
         lvSettings.adapter = settingsListAdapter
@@ -58,12 +58,25 @@ class SettingsActivity : AppCompatActivity(), OnItemClickListener {
                     )
                 )
                 alert.setMessage(application.getString(R.string.import_data_message))
-                alert.setNeutralButton(application.getString(R.string.export_data)) { _, _ ->
-                    exportData()
-                    openFilePicker()
-                }
                 alert.setPositiveButton(application.getString(R.string.yes)) { _, _ ->
                     openFilePicker()
+                }
+                alert.setNegativeButton(application.getString(R.string.no)) { _, _ -> }
+                val alertDialog = alert.create()
+                alertDialog.show()
+            }
+            "resetData" -> {
+                val alert = AlertDialog.Builder(this)
+                alert.setTitle(application.getString(R.string.reset_data))
+                alert.setIcon(
+                    AppCompatResources.getDrawable(
+                        applicationContext,
+                        R.drawable.ic_baseline_refresh_24
+                    )
+                )
+                alert.setMessage(application.getString(R.string.reset_data_message))
+                alert.setPositiveButton(application.getString(R.string.yes)) { _, _ ->
+                    //
                 }
                 alert.setNegativeButton(application.getString(R.string.no)) { _, _ -> }
                 val alertDialog = alert.create()
