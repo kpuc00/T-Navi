@@ -64,7 +64,7 @@
     <string name="pick_stops">Изберете спирки</string>
     <string name="label_edit_direction">Промяна на посока:</string>
     <string name="label_create_direction">Създаване на посока:</string>
-    <string name="direction_delete">Опитвате се да изтриете тази посока. Желаете ли да продължите?</string>
+    <string name="direction_delete">Опитвате се да изтриете тази дестинация. Желаете ли да продължите?</string>
     <string name="direction_">Дестинация</string>
     <string name="label_create_line">Създаване на линия:</string>
     <string name="line_number">Номер на линията: (*)</string>
@@ -72,4 +72,6 @@
     <string name="line_exists">Опитвате се да създадете съществуваща линия!</string>
     <string name="reset_data">Нулиране  с фабричните настройки</string>
     <string name="reset_data_message">"ВНИМАНИЕ!\n\nТова действие ще нулира системата до нейните фабрични настройки по подразбиране като изтрие всички маршрути и спирки. Желаете ли да продължите?"</string>
+    <string name="line_delete">Опитвате се да изтриете тази линия. Желаете ли да продължите?</string>
+    <string name="search">Търсене...</string>
 </resources>

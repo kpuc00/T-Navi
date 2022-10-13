@@ -211,7 +211,7 @@ class StopFormActivity : AppCompatActivity() {
                         "${applicationContext.getString(R.string.stop_)} ${stop!!.title} ${
                             applicationContext.getString(R.string.was_deleted)
                         }",
-                        Toast.LENGTH_LONG
+                        Toast.LENGTH_SHORT
                     ).show()
                     finish()
                 }
@@ -242,7 +242,7 @@ class StopFormActivity : AppCompatActivity() {
                     "${applicationContext.getString(R.string.stop_)} $stopTitleToDisplay ${
                         applicationContext.getString(R.string.was_modified)
                     }",
-                    Toast.LENGTH_LONG
+                    Toast.LENGTH_SHORT
                 ).show()
             } else {
                 Toast.makeText(
@@ -250,7 +250,7 @@ class StopFormActivity : AppCompatActivity() {
                     "${applicationContext.getString(R.string.stop_)} $stopTitleToDisplay ${
                         applicationContext.getString(R.string.was_created)
                     }",
-                    Toast.LENGTH_LONG
+                    Toast.LENGTH_SHORT
                 ).show()
             }
             finish()

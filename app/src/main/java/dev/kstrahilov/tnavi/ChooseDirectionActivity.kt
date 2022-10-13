@@ -2,18 +2,21 @@ package dev.kstrahilov.tnavi
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
-import android.widget.AdapterView
+import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
-import android.widget.ArrayAdapter
-import android.widget.ListView
-import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import java.io.File
 
 class ChooseDirectionActivity : AppCompatActivity(), OnItemClickListener {
+    private var isManager: Boolean = false
     private lateinit var lvDirections: ListView
     private lateinit var line: Line
     private lateinit var tvEmptyListDestinations: TextView
+    private val operations = Operations()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,22 +25,86 @@ class ChooseDirectionActivity : AppCompatActivity(), OnItemClickListener {
         line = (intent.getParcelableExtra("line") as Line?)!!
         title = application.getString(R.string.choose_direction) + " " + line.toString()
 
+        val manager = intent.getStringExtra("manager")
+        if (manager != null && manager == "manager") {
+            isManager = true
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val storedLine =
+            operations.loadLinesFromInternalStorage(applicationContext).find { it.id == line.id }
         lvDirections = findViewById(R.id.lv_directions)
         tvEmptyListDestinations = findViewById(R.id.tv_empty_list_destinations)
         tvEmptyListDestinations.visibility = if (line.directions!!.size < 1) {
             View.VISIBLE
         } else View.GONE
         lvDirections.adapter =
-            ArrayAdapter(this, android.R.layout.simple_list_item_1, line.directions!!)
+            ArrayAdapter(this, android.R.layout.simple_list_item_1, storedLine!!.directions!!)
         lvDirections.onItemClickListener = this
     }
 
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         val direction: Direction = line.directions!![position]
-        val intent = Intent(this, RouteActivity::class.java)
-        intent.putExtra("line", line.toString())
-        intent.putExtra("lineAnnouncement", line.announcementFilePath.toString())
-        intent.putExtra("direction", direction)
-        startActivity(intent)
+        if (isManager) {
+            val intent = Intent(this, DirectionFormActivity::class.java)
+            intent.putExtra("lineId", line.id.toString())
+            intent.putExtra("direction", direction)
+            startActivity(intent)
+        } else {
+            val intent = Intent(this, RouteActivity::class.java)
+            intent.putExtra("line", line.toString())
+            intent.putExtra("lineAnnouncement", line.announcementFilePath.toString())
+            intent.putExtra("direction", direction)
+            startActivity(intent)
+        }
+    }
+
+    private fun removeLine(){
+        val storedLines = operations.loadLinesFromInternalStorage(applicationContext)
+            .filter { it.id != line.id }
+
+        val path: String = applicationContext.filesDir.toString()
+        val fileName = "/lines.json"
+        val file = File(path, fileName)
+
+        val jsonString: String = operations.gson.toJson(storedLines)
+        file.writeText(jsonString, Charsets.UTF_8)
+        Toast.makeText(
+            applicationContext,
+            "${applicationContext.getString(R.string.line_)} ${line.number} ${
+                applicationContext.getString(
+                    R.string.was_deleted
+                )
+            }",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        if (isManager) {
+            menuInflater.inflate(R.menu.menu_delete, menu)
+        }
+
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_delete -> {
+            val alert = AlertDialog.Builder(this)
+            alert.setTitle(application.getString(R.string.action_delete))
+            alert.setMessage(application.getString(R.string.line_delete))
+            alert.setPositiveButton(application.getString(R.string.yes)) { _, _ ->
+                removeLine()
+                finish()
+            }
+            alert.setNegativeButton(application.getString(R.string.no)) { _, _ -> }
+            val alertDialog = alert.create()
+            alertDialog.show()
+
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 }

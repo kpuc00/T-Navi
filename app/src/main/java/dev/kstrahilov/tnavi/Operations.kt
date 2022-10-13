@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 class Operations {
-    private var gson = Gson()
+    var gson = Gson()
 
     fun loadStopsFromInternalStorage(applicationContext: Context): ArrayList<Stop> {
         val path: String = applicationContext.filesDir.toString()

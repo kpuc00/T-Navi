@@ -149,7 +149,6 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
         val stopsTitles = stopsList.map { it.title }.toTypedArray()
         builder.setTitle(application.getString(R.string.pick_stops))
         builder.setItems(stopsTitles) { _, position ->
-            Toast.makeText(applicationContext, stopsList[position].title, Toast.LENGTH_LONG).show()
             route.add(stopsList.find { it.title == stopsList[position].title }!!)
             lvDirectionStops.invalidateViews()
         }
@@ -167,7 +166,7 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
                     "${applicationContext.getString(R.string.direction_)} $directionTitleToDisplay ${
                         applicationContext.getString(R.string.was_modified)
                     }",
-                    Toast.LENGTH_LONG
+                    Toast.LENGTH_SHORT
                 ).show()
             } else {
                 Toast.makeText(
@@ -175,7 +174,7 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
                     "${applicationContext.getString(R.string.direction_)} $directionTitleToDisplay ${
                         applicationContext.getString(R.string.was_created)
                     }",
-                    Toast.LENGTH_LONG
+                    Toast.LENGTH_SHORT
                 ).show()
             }
             finish()
@@ -256,11 +255,11 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
             alert.setMessage(application.getString(R.string.direction_delete))
             alert.setPositiveButton(application.getString(R.string.yes)) { _, _ ->
                 deleteDirection()
+                finish()
             }
             alert.setNegativeButton(application.getString(R.string.no)) { _, _ -> }
             val alertDialog = alert.create()
             alertDialog.show()
-            finish()
 
             true
         }

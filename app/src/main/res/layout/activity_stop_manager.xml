@@ -6,6 +6,22 @@
     android:layout_height="match_parent"
     tools:context=".StopManager">
 
+    <EditText
+        android:id="@+id/et_search_stop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:autofillHints="stopTitle"
+        android:drawableStart="@drawable/ic_baseline_search_24"
+        android:ems="10"
+        android:hint="@string/search"
+        android:inputType="textPersonName"
+        android:minHeight="48dp"
+        android:textColorHint="@color/textColorHint"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/tv_empty_list_stops"
         android:layout_width="wrap_content"
@@ -15,13 +31,14 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/et_search_stop" />
 
     <ListView
         android:id="@+id/lv_all_stops"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/et_search_stop"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
