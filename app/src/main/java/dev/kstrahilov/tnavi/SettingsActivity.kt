@@ -41,7 +41,9 @@ class SettingsActivity : AppCompatActivity(), OnItemClickListener {
                 startActivity(intent)
             }
             "lineManager" -> {
-//
+                val intent = Intent(this, ChooseLineActivity::class.java)
+                intent.putExtra("manager", "manager")
+                startActivity(intent)
             }
             "exportData" -> {
                 exportData()

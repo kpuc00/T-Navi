@@ -166,6 +166,7 @@ class StopFormActivity : AppCompatActivity() {
                     readStops.remove(readStop)
                 }
                 readStops.addAll(stops)
+                readStops.sortBy { it.title.lowercase() }
 
                 val jsonString: String = gson.toJson(readStops)
                 file.writeText(jsonString, Charsets.UTF_8)

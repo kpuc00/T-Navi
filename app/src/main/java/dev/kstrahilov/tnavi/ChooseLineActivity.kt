@@ -2,23 +2,51 @@ package dev.kstrahilov.tnavi
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
-import android.widget.AdapterView
+import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
-import android.widget.ArrayAdapter
-import android.widget.ListView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.maps.model.LatLng
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.io.File
+import java.lang.reflect.Type
 
 class ChooseLineActivity : AppCompatActivity(), OnItemClickListener {
     private lateinit var lvLines: ListView
+    private var isManager: Boolean = false
+    private val operations = Operations()
+    private lateinit var lines: ArrayList<Line>
+    private lateinit var tvEmptyListLines: TextView
+    private var line: Line? = null
+    private var gson = Gson()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_choose_line)
 
+        val intent = intent
+        val manager = intent.getStringExtra("manager")
+        if (manager != null && manager == "manager") {
+            isManager = true
+            title = application.getString(R.string.lines_manager)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        lines = operations.loadLinesFromInternalStorage(applicationContext)
+        tvEmptyListLines = findViewById(R.id.tv_empty_list_lines)
+        tvEmptyListLines.visibility = if (lines.size < 1) {
+            View.VISIBLE
+        } else View.GONE
+
         lvLines = findViewById(R.id.lv_lines)
-        lvLines.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, data())
+        lvLines.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, lines)
         lvLines.onItemClickListener = this
     }
 
@@ -109,12 +137,20 @@ class ChooseLineActivity : AppCompatActivity(), OnItemClickListener {
         route825.add(Stop(title = "ул. Brunelleschiweg", location = LatLng(51.465377, 5.452131)))
 
         val directions82: ArrayList<Direction> = ArrayList()
-        directions82.add(Direction(title = "ЖП Гара", route821, R.raw.jp_gara))
-        directions82.add(Direction(title = "Владиславово", route822, R.raw.vladislavovo))
-        directions82.add(Direction(title = "Мебелна палата", route823))
-        directions82.add(Direction(title = "Училищен", route824))
-        directions82.add(Direction(title = "ЗА ДЕПО", route825))
-        lines.add(Line(number = "82", directions82, announcementFilePath = R.raw._82))
+        directions82.add(
+            Direction(
+                title = "ЖП Гара", route = route821, announcementFilePath = R.raw.jp_gara
+            )
+        )
+        directions82.add(
+            Direction(
+                title = "Владиславово", route = route822, announcementFilePath = R.raw.vladislavovo
+            )
+        )
+        directions82.add(Direction(title = "Мебелна палата", route = route823))
+        directions82.add(Direction(title = "Училищен", route = route824))
+        directions82.add(Direction(title = "ЗА ДЕПО", route = route825))
+        lines.add(Line(number = "82", directions = directions82, announcementFilePath = R.raw._82))
 
         val route831: ArrayList<Stop> = ArrayList()
         route831.add(Stop(title = "ТИС Север"))
@@ -153,9 +189,17 @@ class ChooseLineActivity : AppCompatActivity(), OnItemClickListener {
         route832.add(Stop(title = "ТИС Север"))
 
         val directions83: ArrayList<Direction> = ArrayList()
-        directions83.add(Direction(title = "ЖП Гара", route831, R.raw.jp_gara))
-        directions83.add(Direction(title = "ТИС Север", route832, R.raw.tis_sever))
-        lines.add(Line(number = "83", directions83, R.raw._83))
+        directions83.add(
+            Direction(
+                title = "ЖП Гара", route = route831, announcementFilePath = R.raw.jp_gara
+            )
+        )
+        directions83.add(
+            Direction(
+                title = "ТИС Север", route = route832, announcementFilePath = R.raw.tis_sever
+            )
+        )
+        lines.add(Line(number = "83", directions = directions83, announcementFilePath = R.raw._83))
 
         val route861: ArrayList<Stop> = ArrayList()
         route861.add(Stop(title = "Почивка /Обръщач/"))
@@ -204,9 +248,13 @@ class ChooseLineActivity : AppCompatActivity(), OnItemClickListener {
         route862.add(Stop(title = "Почивка /Обръщач/"))
 
         val directions86: ArrayList<Direction> = ArrayList()
-        directions86.add(Direction(title = "Аспарухово", route861, R.raw.asparuhovo))
-        directions86.add(Direction(title = "Почивка", route862))
-        lines.add(Line(number = "86", directions86))
+        directions86.add(
+            Direction(
+                title = "Аспарухово", route = route861, announcementFilePath = R.raw.asparuhovo
+            )
+        )
+        directions86.add(Direction(title = "Почивка", route = route862))
+        lines.add(Line(number = "86", directions = directions86))
 
         val route881: ArrayList<Stop> = ArrayList()
         route881.add(Stop(title = "Бл. 407 (Вл-во)"))
@@ -279,17 +327,24 @@ class ChooseLineActivity : AppCompatActivity(), OnItemClickListener {
         route882.add(Stop(title = "Бл. 407 (Вл-во)"))
 
         val directions88: ArrayList<Direction> = ArrayList()
-        directions88.add(Direction(title = "Аспарухово", route881, R.raw.asparuhovo))
-        directions88.add(Direction(title = "Владиславово", route882, R.raw.vladislavovo))
+        directions88.add(
+            Direction(
+                title = "Аспарухово", route = route881, announcementFilePath = R.raw.asparuhovo
+            )
+        )
+        directions88.add(
+            Direction(
+                title = "Владиславово", route = route882, announcementFilePath = R.raw.vladislavovo
+            )
+        )
         lines.add(Line(number = "88", directions = directions88, announcementFilePath = R.raw._88))
 
-        val empty: ArrayList<Stop> = ArrayList()
         val directions999: ArrayList<Direction> = ArrayList()
-        directions999.add(Direction(title = "ЗА ДЕПО", empty))
-        directions999.add(Direction(title = "СЛУЖЕБЕН", empty))
-        directions999.add(Direction(title = "ТЕСТ ДРАЙВ", empty))
-        directions999.add(Direction(title = "УЧИЛИЩЕН", empty))
-        lines.add(Line(number = "999", directions999))
+        directions999.add(Direction(title = "ЗА ДЕПО"))
+        directions999.add(Direction(title = "СЛУЖЕБЕН"))
+        directions999.add(Direction(title = "ТЕСТ ДРАЙВ"))
+        directions999.add(Direction(title = "УЧИЛИЩЕН"))
+        lines.add(Line(number = "999", directions = directions999))
 
         val route11: ArrayList<Stop> = ArrayList()
         route11.add(
@@ -376,19 +431,152 @@ class ChooseLineActivity : AppCompatActivity(), OnItemClickListener {
         )
 
         val directions1: ArrayList<Direction> = ArrayList()
-        directions1.add(Direction(title = "Пиаца", route11))
-        directions1.add(Direction(title = "ЗА ДЕПО", routeDepo))
-        directions1.add(Direction(title = "Тест", route12))
-        directions1.add(Direction(title = "Тест 2", route13))
-        lines.add(Line(number = "1", directions1, R.raw._1))
+        directions1.add(Direction(title = "Пиаца", route = route11))
+        directions1.add(Direction(title = "ЗА ДЕПО", route = routeDepo))
+        directions1.add(Direction(title = "Тест", route = route12))
+        directions1.add(Direction(title = "Тест 2", route = route13))
+        lines.add(Line(number = "1", directions = directions1, announcementFilePath = R.raw._1))
 
         return lines
     }
 
+    private fun saveLine(number: String) {
+        val newLine: Line = if (line != null && number != "") {
+            line!!
+        } else {
+            if (number == "") {
+                val alert = AlertDialog.Builder(this)
+                alert.setTitle(application.getString(R.string.error))
+                alert.setMessage(application.getString(R.string.form_incomplete))
+                alert.setNegativeButton(application.getString(R.string.ok)) { _, _ -> }
+                val alertDialog = alert.create()
+                alertDialog.show()
+                return
+            }
+            Line(number = number)
+        }
+
+        val path: String = applicationContext.filesDir.toString()
+        val fileName = "/lines.json"
+        val file = File(path, fileName)
+
+        try {
+            if (file.exists()) {
+                val readJson = file.readText(Charsets.UTF_8)
+                val linesListType: Type = object : TypeToken<ArrayList<Line?>?>() {}.type
+                val readLines: ArrayList<Line> = gson.fromJson(readJson, linesListType)
+                if (line != null) {
+                    Toast.makeText(applicationContext, "not null", Toast.LENGTH_SHORT).show()
+                    val currentLine: Line =
+                        readLines.filter { it.id.toString() == line?.id.toString() }[0]
+
+                    //Updating the line
+                    //First remove it and add it again when updated
+                    readLines.remove(currentLine)
+                    readLines.add(newLine)
+                    readLines.sortBy { it.number }
+                } else {
+                    if (readLines.any { it.number == newLine.number }) {
+                        val alert = AlertDialog.Builder(this)
+                        alert.setTitle(application.getString(R.string.error))
+                        alert.setMessage(application.getString(R.string.line_exists))
+                        alert.setNegativeButton(application.getString(R.string.ok)) { _, _ -> }
+                        val alertDialog = alert.create()
+                        alertDialog.show()
+                        return
+                    } else {
+                        readLines.add(newLine)
+                    }
+                }
+                val jsonString: String = gson.toJson(readLines)
+                file.writeText(jsonString, Charsets.UTF_8)
+                line?.let { checkIfDataWritten(file, jsonString, it.number) }
+
+            } else {
+                val jsonString: String = gson.toJson(arrayListOf(newLine))
+                file.writeText(jsonString, Charsets.UTF_8)
+                line?.let { checkIfDataWritten(file, jsonString, it.number) }
+            }
+            val intent = Intent(this, DirectionFormActivity::class.java)
+            intent.putExtra("lineId", newLine.id.toString())
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(
+                applicationContext,
+                applicationContext.getString(R.string.error_message),
+                Toast.LENGTH_LONG
+            ).show()
+            e.printStackTrace()
+        }
+    }
+
+    private fun checkIfDataWritten(
+        file: File, jsonString: String, directionTitleToDisplay: String
+    ) {
+        if (file.readText(Charsets.UTF_8) == jsonString) {
+            if (line != null) {
+                Toast.makeText(
+                    applicationContext,
+                    "${applicationContext.getString(R.string.line_)} $directionTitleToDisplay ${
+                        applicationContext.getString(R.string.was_modified)
+                    }",
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
+                Toast.makeText(
+                    applicationContext,
+                    "${applicationContext.getString(R.string.line_)} $directionTitleToDisplay ${
+                        applicationContext.getString(R.string.was_created)
+                    }",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            finish()
+        } else {
+            Toast.makeText(
+                applicationContext,
+                applicationContext.getString(R.string.error_message),
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        return if (isManager) {
+            menuInflater.inflate(R.menu.menu_add, menu)
+            true
+        } else false
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_add -> {
+            val alert = AlertDialog.Builder(this)
+            alert.setTitle(application.getString(R.string.label_create_line))
+            val input = EditText(this)
+            input.hint = application.getString(R.string.line_number)
+            input.inputType = InputType.TYPE_CLASS_TEXT
+            alert.setView(input)
+            alert.setPositiveButton(application.getString(R.string.action_create)) { _, _ ->
+                saveLine(input.text.toString().trim())
+            }
+            alert.setNegativeButton(application.getString(R.string.cancel)) { _, _ -> }
+            val alertDialog = alert.create()
+            alertDialog.show()
+
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
+    }
+
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        val line: Line = data()[position]
-        val intent = Intent(this, ChooseDirectionActivity::class.java)
-        intent.putExtra("line", line)
-        startActivity(intent)
+        val line: Line = lines[position]
+        if (isManager) {
+            //
+        } else {
+            val intent = Intent(this, ChooseDirectionActivity::class.java)
+            intent.putExtra("line", line)
+            startActivity(intent)
+        }
     }
 }

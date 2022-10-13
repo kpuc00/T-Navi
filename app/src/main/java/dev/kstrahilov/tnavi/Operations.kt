@@ -53,7 +53,7 @@ class Operations {
 
         return if (file.exists()) {
             val readJson = file.readText(Charsets.UTF_8)
-            val stopListType: Type = object : TypeToken<ArrayList<Stop?>?>() {}.type
+            val stopListType: Type = object : TypeToken<ArrayList<Line?>?>() {}.type
             gson.fromJson(readJson, stopListType)
         } else {
             ArrayList()

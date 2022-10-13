@@ -8,12 +8,14 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
 class StopManager : AppCompatActivity(), AdapterView.OnItemClickListener {
     private lateinit var lvAllStops: ListView
     private lateinit var stops: ArrayList<Stop>
     private val operations = Operations()
+    private lateinit var tvEmptyListStops: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,6 +28,10 @@ class StopManager : AppCompatActivity(), AdapterView.OnItemClickListener {
     override fun onResume() {
         super.onResume()
         stops = operations.loadStopsFromInternalStorage(applicationContext)
+        tvEmptyListStops = findViewById(R.id.tv_empty_list_stops)
+        tvEmptyListStops.visibility = if (stops.size < 1) {
+            View.VISIBLE
+        } else View.GONE
         lvAllStops.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, stops)
         lvAllStops.onItemClickListener = this
     }

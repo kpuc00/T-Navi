@@ -25,11 +25,12 @@
     <string name="exit_route_question">Желате ли да прекъснете пътуването?</string>
     <string name="yes">Да</string>
     <string name="no">Не</string>
+    <string name="cancel">Отказ</string>
     <string name="logo">logo</string>
     <string name="location_access_denied">Маршрутът няма да се следи!</string>
     <string name="enable_location">Включете местоположението на устройството и рестартирайте пътуването!</string>
     <string name="stop_title">Име на спирката: *</string>
-    <string name="select_file_text">Посочете аудио за гласово оповестяване на спирката:</string>
+    <string name="select_audio_stop_text">Посочете аудио за гласово оповестяване на спирката:</string>
     <string name="choose_file">Избери аудио</string>
     <string name="pick_location">Посочете местоположението на спирката на картата: *</string>
     <string name="label_create_stop">Създаване на спирка:</string>
@@ -55,5 +56,18 @@
     <string name="import_data_message">"ВНИМАНИЕ! Това действие ще замести настоящите данни в системата. Желаете ли да продължите?\n\nПомощ: Можете да експортирате данните си, за да избегнете загуби."</string>
     <string name="form_incomplete">Не сте попълнили задължителните полета! (*)</string>
     <string name="ok">Ок</string>
-
+    <string name="empty_list_stops">Няма спирки.</string>
+    <string name="empty_list_destinations">Няма дестинации.</string>
+    <string name="empty_list_lines">Няма линии.</string>
+    <string name="direction_title">Име на посоката: *</string>
+    <string name="select_audio_direction_text">Посочете аудио за гласово оповестяване на посоката:</string>
+    <string name="pick_stops">Изберете спирки</string>
+    <string name="label_edit_direction">Промяна на посока:</string>
+    <string name="label_create_direction">Създаване на посока:</string>
+    <string name="direction_delete">Опитвате се да изтриете тази посока. Желаете ли да продължите?</string>
+    <string name="direction_">Посоката</string>
+    <string name="label_create_line">Създаване на линия:</string>
+    <string name="line_number">Номер на линията: (*)</string>
+    <string name="line_">Линия</string>
+    <string name="line_exists">Опитвате се да създадете съществуваща линия!</string>
 </resources>

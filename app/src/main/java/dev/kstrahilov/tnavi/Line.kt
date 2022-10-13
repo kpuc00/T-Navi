@@ -2,10 +2,14 @@ package dev.kstrahilov.tnavi
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import java.util.*
 
 @Parcelize
 class Line(
-    var number: String, var directions: ArrayList<Direction>, var announcementFilePath: Int = 0
+    val id: UUID = UUID.randomUUID(),
+    var number: String,
+    var directions: ArrayList<Direction>? = ArrayList(),
+    var announcementFilePath: Int? = null
 ) : Parcelable {
     override fun toString(): String {
         return number

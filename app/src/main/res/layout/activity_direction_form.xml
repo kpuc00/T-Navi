@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".StopFormActivity">
+    tools:context=".DirectionFormActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,34 +13,13 @@
         android:layout_margin="10dp"
         android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/stop_id_row"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/tv_id_placeholder"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/id_" />
-
-            <TextView
-                android:id="@+id/tv_stop_id"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
-
-
         <EditText
-            android:id="@+id/et_stop_title"
+            android:id="@+id/et_direction_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autofillHints="stopTitle"
             android:ems="10"
-            android:hint="@string/stop_title"
+            android:hint="@string/direction_title"
             android:inputType="textPersonName"
             android:minHeight="48dp"
             android:textColorHint="#78909C" />
@@ -54,10 +33,10 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/select_audio_stop_text" />
+                android:text="@string/select_audio_direction_text" />
 
             <Button
-                android:id="@+id/btn_choose_file"
+                android:id="@+id/btn_choose_audio_direction"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/choose_file"
@@ -65,18 +44,37 @@
                 app:iconGravity="textStart" />
         </LinearLayout>
 
-
-        <TextView
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/pick_location" />
+            android:orientation="horizontal">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/route"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/btn_pick_stop"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/pick_stops"
+                app:icon="@drawable/ic_baseline_add_24"
+                app:iconGravity="textStart"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+    <ListView
+        android:id="@+id/lv_direction_stops"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

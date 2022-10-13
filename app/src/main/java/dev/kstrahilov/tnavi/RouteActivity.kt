@@ -74,15 +74,14 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
         val intent = intent
         lineNumber = intent.getStringExtra("line").toString()
         val strLineAnnouncement = intent.getStringExtra("lineAnnouncement")
-        if (strLineAnnouncement != null) {
-            lineAnnouncement = strLineAnnouncement.toInt()
-        }
+        lineAnnouncement = if (strLineAnnouncement != null && strLineAnnouncement != "null") {
+            strLineAnnouncement.toInt()
+        } else 0
+
         direction = intent.getParcelableExtra<Direction>("direction") as Direction
         directionAnnouncement = if (direction.announcementFilePath != null) {
             direction.announcementFilePath!!
-        } else {
-            0
-        }
+        } else 0
 
         gpsStatus = findViewById(R.id.gps_status)
         if (!checkPermissions()) {

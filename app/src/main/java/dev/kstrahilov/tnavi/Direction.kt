@@ -2,11 +2,13 @@ package dev.kstrahilov.tnavi
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import java.util.*
 
 @Parcelize
 class Direction(
+    val id: UUID = UUID.randomUUID(),
     var title: String,
-    var route: ArrayList<Stop>,
+    var route: ArrayList<Stop> = ArrayList(),
     var announcementFilePath: Int? = null
 ) :
     Parcelable {
