@@ -17,6 +17,7 @@ class ChooseDirectionActivity : AppCompatActivity(), OnItemClickListener {
     private lateinit var line: Line
     private lateinit var tvEmptyListDestinations: TextView
     private val operations = Operations()
+    private lateinit var storedLine: Line
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,37 +34,38 @@ class ChooseDirectionActivity : AppCompatActivity(), OnItemClickListener {
 
     override fun onResume() {
         super.onResume()
-        val storedLine =
-            operations.loadLinesFromInternalStorage(applicationContext).find { it.id == line.id }
+        storedLine =
+            operations.loadLinesFromInternalStorage(applicationContext).find { it.id == line.id }!!
         lvDirections = findViewById(R.id.lv_directions)
         tvEmptyListDestinations = findViewById(R.id.tv_empty_list_destinations)
-        tvEmptyListDestinations.visibility = if (line.directions!!.size < 1) {
+        tvEmptyListDestinations.visibility = if (storedLine.directions!!.size < 1) {
             View.VISIBLE
         } else View.GONE
         lvDirections.adapter =
-            ArrayAdapter(this, android.R.layout.simple_list_item_1, storedLine!!.directions!!)
+            ArrayAdapter(this, android.R.layout.simple_list_item_1, storedLine.directions!!)
         lvDirections.onItemClickListener = this
+        lvDirections.invalidateViews()
     }
 
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        val direction: Direction = line.directions!![position]
+        val direction: Direction = storedLine.directions!![position]
         if (isManager) {
             val intent = Intent(this, DirectionFormActivity::class.java)
-            intent.putExtra("lineId", line.id.toString())
+            intent.putExtra("lineId", storedLine.id.toString())
             intent.putExtra("direction", direction)
             startActivity(intent)
         } else {
             val intent = Intent(this, RouteActivity::class.java)
-            intent.putExtra("line", line.toString())
-            intent.putExtra("lineAnnouncement", line.announcementFilePath.toString())
+            intent.putExtra("line", storedLine.toString())
+            intent.putExtra("lineAnnouncement", storedLine.announcementFilePath.toString())
             intent.putExtra("direction", direction)
             startActivity(intent)
         }
     }
 
-    private fun removeLine(){
+    private fun removeLine() {
         val storedLines = operations.loadLinesFromInternalStorage(applicationContext)
-            .filter { it.id != line.id }
+            .filter { it.id != storedLine.id }
 
         val path: String = applicationContext.filesDir.toString()
         val fileName = "/lines.json"
@@ -73,7 +75,7 @@ class ChooseDirectionActivity : AppCompatActivity(), OnItemClickListener {
         file.writeText(jsonString, Charsets.UTF_8)
         Toast.makeText(
             applicationContext,
-            "${applicationContext.getString(R.string.line_)} ${line.number} ${
+            "${applicationContext.getString(R.string.line_)} ${storedLine.number} ${
                 applicationContext.getString(
                     R.string.was_deleted
                 )
@@ -85,6 +87,7 @@ class ChooseDirectionActivity : AppCompatActivity(), OnItemClickListener {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         if (isManager) {
             menuInflater.inflate(R.menu.menu_delete, menu)
+            menuInflater.inflate(R.menu.menu_add, menu)
         }
 
         return true
@@ -102,6 +105,13 @@ class ChooseDirectionActivity : AppCompatActivity(), OnItemClickListener {
             alert.setNegativeButton(application.getString(R.string.no)) { _, _ -> }
             val alertDialog = alert.create()
             alertDialog.show()
+
+            true
+        }
+        R.id.action_add -> {
+            val intent = Intent(this, DirectionFormActivity::class.java)
+            intent.putExtra("lineId", storedLine.id.toString())
+            startActivity(intent)
 
             true
         }

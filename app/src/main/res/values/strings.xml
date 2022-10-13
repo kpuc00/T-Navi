@@ -73,5 +73,7 @@
     <string name="reset_data">Нулиране  с фабричните настройки</string>
     <string name="reset_data_message">"ВНИМАНИЕ!\n\nТова действие ще нулира системата до нейните фабрични настройки по подразбиране като изтрие всички маршрути и спирки. Желаете ли да продължите?"</string>
     <string name="line_delete">Опитвате се да изтриете тази линия. Желаете ли да продължите?</string>
-    <string name="search">Търсене...</string>
+    <string name="search">Търсене…</string>
+    <string name="remove_stop_from_route">Тази спирка ще бъде премахната от маршрута. Желаете ли да продължите?</string>
+    <string name="error_map">Възникна грешка при зареждането на картата</string>
 </resources>

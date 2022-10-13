@@ -2,6 +2,7 @@ package dev.kstrahilov.tnavi
 
 import android.os.Bundle
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
@@ -22,6 +23,7 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
     private lateinit var lvDirectionStops: ListView
     private lateinit var btnPickStop: Button
     private var route: ArrayList<Stop> = ArrayList()
+    private lateinit var adapter: ArrayAdapter<Stop>
     private var gson = Gson()
     private val operations = Operations()
 
@@ -52,7 +54,7 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
                 override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
                 override fun afterTextChanged(p0: Editable?) {
-                    direction!!.title = etDirectionTitle.text.toString()
+                    direction!!.title = etDirectionTitle.text.toString().trim()
                 }
 
             })
@@ -71,17 +73,18 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
                 )
             )
         }
-        lvDirectionStops.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, route)
+        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, route)
+        lvDirectionStops.adapter = adapter
         lvDirectionStops.onItemClickListener = this
     }
 
     private fun saveDirection() {
         val newDirection: Direction
-        if (direction != null && etDirectionTitle.text.toString() != "") {
+        if (direction != null && etDirectionTitle.text.toString().trim() != "") {
             direction!!.routeStopIds = operations.convertListOfStopsToListOfStopIds(route)
             newDirection = direction!!
         } else {
-            if (etDirectionTitle.text.toString() == "") {
+            if (etDirectionTitle.text.toString().trim() == "") {
                 val alert = AlertDialog.Builder(this)
                 alert.setTitle(application.getString(R.string.error))
                 alert.setMessage(application.getString(R.string.form_incomplete))
@@ -267,9 +270,16 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
     }
 
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-//        val stop: Stop = stops[position]
-//        val intent = Intent(this, StopFormActivity::class.java)
-//        intent.putExtra("stop", stop)
-//        startActivity(intent)
+        val stop = adapter.getItem(position)
+        val alert = AlertDialog.Builder(this)
+        alert.setTitle(stop!!.title)
+        alert.setMessage(application.getString(R.string.remove_stop_from_route))
+        alert.setPositiveButton(application.getString(R.string.yes)) { _, _ ->
+            route.remove(stop)
+            lvDirectionStops.invalidateViews()
+        }
+        alert.setNegativeButton(application.getString(R.string.no)) { _, _ -> }
+        val alertDialog = alert.create()
+        alertDialog.show()
     }
 }

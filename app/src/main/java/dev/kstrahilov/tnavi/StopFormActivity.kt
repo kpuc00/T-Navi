@@ -1,6 +1,7 @@
 package dev.kstrahilov.tnavi
 
 import android.content.Context
+import android.content.res.Resources.NotFoundException
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
@@ -72,33 +73,44 @@ class StopFormActivity : AppCompatActivity() {
         val mapFragment = supportFragmentManager.findFragmentById(
             R.id.map
         ) as? SupportMapFragment
-        mapFragment?.getMapAsync { googleMap ->
-            googleMap.setMyLocationEnabled(true)
-            googleMap.mapType = GoogleMap.MAP_TYPE_HYBRID
-            if (stop != null) {
-                googleMap.addMarker(
-                    MarkerOptions().position(stop!!.location)
-                        .icon(bitmapFromVector(applicationContext, R.drawable.spirka))
-                        .anchor(0.5F, 0.5F)
-                )
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(stop!!.location, 17F))
-                addCircle(googleMap, stop!!.location)
-            }
 
-            googleMap.setOnMapClickListener {
-                selectedLocation = it
-                googleMap.clear()
-                googleMap.addMarker(
-                    MarkerOptions().position(selectedLocation)
-                        .icon(bitmapFromVector(applicationContext, R.drawable.spirka))
-                        .anchor(0.5F, 0.5F)
-                )
-                addCircle(googleMap, selectedLocation)
+        try {
+            mapFragment?.getMapAsync { googleMap ->
+                googleMap.setMyLocationEnabled(true)
+                googleMap.mapType = GoogleMap.MAP_TYPE_HYBRID
                 if (stop != null) {
-                    stop!!.location = it
+                    googleMap.addMarker(
+                        MarkerOptions().position(stop!!.location)
+                            .icon(bitmapFromVector(applicationContext, R.drawable.spirka))
+                            .anchor(0.5F, 0.5F)
+                    )
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(stop!!.location, 17F))
+                    addCircle(googleMap, stop!!.location)
+                }
+
+                googleMap.setOnMapClickListener {
+                    selectedLocation = it
+                    googleMap.clear()
+                    googleMap.addMarker(
+                        MarkerOptions().position(selectedLocation)
+                            .icon(bitmapFromVector(applicationContext, R.drawable.spirka))
+                            .anchor(0.5F, 0.5F)
+                    )
+                    addCircle(googleMap, selectedLocation)
+                    if (stop != null) {
+                        stop!!.location = it
+                    }
                 }
             }
+        } catch (e: NotFoundException) {
+            Toast.makeText(
+                applicationContext,
+                applicationContext.getString(R.string.error_map),
+                Toast.LENGTH_LONG
+            ).show()
+            e.printStackTrace()
         }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
