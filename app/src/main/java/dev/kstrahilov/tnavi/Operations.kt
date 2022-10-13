@@ -16,10 +16,12 @@ import java.io.File
 import java.lang.reflect.Type
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 class Operations {
+    private var gson = Gson()
+
     fun loadStopsFromInternalStorage(applicationContext: Context): ArrayList<Stop> {
-        val gson = Gson()
         val path: String = applicationContext.filesDir.toString()
         val fileName = "/stops.json"
         val file = File(path, fileName)
@@ -46,7 +48,6 @@ class Operations {
     }
 
     fun loadLinesFromInternalStorage(applicationContext: Context): ArrayList<Line> {
-        val gson = Gson()
         val path: String = applicationContext.filesDir.toString()
         val fileName = "/lines.json"
         val file = File(path, fileName)
@@ -59,6 +60,44 @@ class Operations {
             ArrayList()
         }
     }
+
+    fun convertListOfStopIdsToListOfStops(
+        stopIds: ArrayList<UUID>, applicationContext: Context
+    ): ArrayList<Stop> {
+        val stops = loadStopsFromInternalStorage(applicationContext)
+        val stopsToReturn: ArrayList<Stop> = ArrayList()
+
+        stopIds.forEach { uuid ->
+            val stop = stops.find { it.id == uuid }
+            if (stop != null) {
+                stopsToReturn.add(stop)
+            }
+        }
+
+        return stopsToReturn
+    }
+
+    fun convertListOfStopsToListOfStopIds(stops: ArrayList<Stop>): ArrayList<UUID> {
+        return stops.map { it.id } as ArrayList<UUID>
+    }
+
+    fun removeDeletedStopIdsFromRoutes(applicationContext: Context) {
+        val stops = loadStopsFromInternalStorage(applicationContext)
+        val lines = loadLinesFromInternalStorage(applicationContext)
+        lines.forEach { line ->
+            line.directions!!.forEach { direction ->
+                direction.routeStopIds.removeIf { uuid ->
+                    stops.find { it.id == uuid } == null
+                }
+            }
+        }
+        val path: String = applicationContext.filesDir.toString()
+        val fileName = "/lines.json"
+        val file = File(path, fileName)
+        val jsonString: String = gson.toJson(lines)
+        file.writeText(jsonString, Charsets.UTF_8)
+    }
+
 
     fun loadLinesJSONFromInternalStorage(applicationContext: Context): String {
         val path: String = applicationContext.filesDir.toString()
@@ -74,7 +113,6 @@ class Operations {
 
     fun saveStopsToInternalStorageFromFile(applicationContext: Context, file: File): Boolean {
         val stopsData: String?
-        val gson = Gson()
         val path: String = applicationContext.filesDir.toString()
         val fileName = "/stops.json"
         val internalFile = File(path, fileName)
@@ -88,16 +126,15 @@ class Operations {
     }
 
     fun exportDataToExternalStorage(
-        applicationContext: Context,
-        application: Application,
-        json: String
+        applicationContext: Context, application: Application, json: String
     ): Boolean {
         val externalPath: String =
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
                 .toString()
         val dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
-        val externalFileName = application.getString(R.string.app_name) +
-                "/data_" + LocalDateTime.now().format(dateFormatter) + ".tnav"
+        val externalFileName =
+            application.getString(R.string.app_name) + "/data_" + LocalDateTime.now()
+                .format(dateFormatter) + ".tnav"
         val externalFile = File(externalPath, externalFileName)
         val externalDirectory = File(application.getString(R.string.app_name))
 
@@ -201,10 +238,7 @@ class Operations {
             "content".equals(uri.scheme, ignoreCase = true) -> {
                 // Return the remote address
                 return if (isGooglePhotosUri(uri)) uri.lastPathSegment else getDataColumn(
-                    context,
-                    uri,
-                    null,
-                    null
+                    context, uri, null, null
                 )
             }
             "file".equals(uri.scheme, ignoreCase = true) -> {
@@ -215,8 +249,7 @@ class Operations {
     }
 
     private fun getDataColumn(
-        context: Context, uri: Uri?, selection: String?,
-        selectionArgs: Array<String>?
+        context: Context, uri: Uri?, selection: String?, selectionArgs: Array<String>?
     ): String? {
         var cursor: Cursor? = null
         val column = "_data"
@@ -226,8 +259,7 @@ class Operations {
         try {
             if (uri == null) return null
             cursor = context.contentResolver.query(
-                uri, projection, selection, selectionArgs,
-                null
+                uri, projection, selection, selectionArgs, null
             )
             if (cursor != null && cursor.moveToFirst()) {
                 val index = cursor.getColumnIndexOrThrow(column)
@@ -248,8 +280,7 @@ class Operations {
         try {
             if (uri == null) return null
             cursor = context.contentResolver.query(
-                uri, projection, null, null,
-                null
+                uri, projection, null, null, null
             )
             if (cursor != null && cursor.moveToFirst()) {
                 val index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)

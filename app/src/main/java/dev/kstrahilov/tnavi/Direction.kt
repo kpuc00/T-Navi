@@ -8,7 +8,7 @@ import java.util.*
 class Direction(
     val id: UUID = UUID.randomUUID(),
     var title: String,
-    var route: ArrayList<Stop> = ArrayList(),
+    var routeStopIds: ArrayList<UUID> = ArrayList(),
     var announcementFilePath: Int? = null
 ) :
     Parcelable {

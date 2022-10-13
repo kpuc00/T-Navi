@@ -42,6 +42,7 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
     private lateinit var tvNextStopInfoRow: TextView
     private lateinit var tvStopTitle: TextView
     private var mediaPlayer: MediaPlayer = MediaPlayer()
+    private val operations = Operations()
 
     companion object {
         private const val PERMISSION_REQUEST_ACCESS_LOCATION = 100
@@ -112,7 +113,11 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
         tvDirection.text = direction.title
         tvDirection.isSelected = true
 
-        route = ArrayList(direction.route)
+        route = ArrayList(
+            operations.convertListOfStopIdsToListOfStops(
+                direction.routeStopIds, applicationContext
+            )
+        )
         loadedRoute = ArrayList(route)
         populateListView(loadedRoute)
 

@@ -23,6 +23,7 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
     private lateinit var btnPickStop: Button
     private var route: ArrayList<Stop> = ArrayList()
     private var gson = Gson()
+    private val operations = Operations()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +38,9 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
 
         etDirectionTitle = findViewById(R.id.et_direction_title)
         btnPickStop = findViewById(R.id.btn_pick_stop)
+        btnPickStop.setOnClickListener {
+            addStopToRoute()
+        }
 
         if (direction != null) {
             title = application.getString(R.string.label_edit_direction)
@@ -60,14 +64,21 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
     override fun onResume() {
         super.onResume()
         lvDirectionStops = findViewById(R.id.lv_direction_stops)
-        lvDirectionStops.adapter =
-            direction?.let { ArrayAdapter(this, android.R.layout.simple_list_item_1, it.route) }
+        if (direction != null) {
+            route.addAll(
+                operations.convertListOfStopIdsToListOfStops(
+                    direction!!.routeStopIds, applicationContext
+                )
+            )
+        }
+        lvDirectionStops.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, route)
         lvDirectionStops.onItemClickListener = this
     }
 
     private fun saveDirection() {
         val newDirection: Direction
         if (direction != null && etDirectionTitle.text.toString() != "") {
+            direction!!.routeStopIds = operations.convertListOfStopsToListOfStopIds(route)
             newDirection = direction!!
         } else {
             if (etDirectionTitle.text.toString() == "") {
@@ -80,7 +91,8 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
                 return
             }
             newDirection = Direction(
-                title = etDirectionTitle.text.toString().trim(), route = route
+                title = etDirectionTitle.text.toString().trim(),
+                routeStopIds = operations.convertListOfStopsToListOfStopIds(route)
             )
 
         }
@@ -131,10 +143,22 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
         }
     }
 
+    private fun addStopToRoute() {
+        val stopsList = operations.loadStopsFromInternalStorage(applicationContext)
+        val builder = AlertDialog.Builder(this)
+        val stopsTitles = stopsList.map { it.title }.toTypedArray()
+        builder.setTitle(application.getString(R.string.pick_stops))
+        builder.setItems(stopsTitles) { _, position ->
+            Toast.makeText(applicationContext, stopsList[position].title, Toast.LENGTH_LONG).show()
+            route.add(stopsList.find { it.title == stopsList[position].title }!!)
+            lvDirectionStops.invalidateViews()
+        }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
     private fun checkIfDataWritten(
-        file: File,
-        jsonString: String,
-        directionTitleToDisplay: String
+        file: File, jsonString: String, directionTitleToDisplay: String
     ) {
         if (file.readText(Charsets.UTF_8) == jsonString) {
             if (direction != null) {

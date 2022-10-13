@@ -34,6 +34,7 @@ class StopManager : AppCompatActivity(), AdapterView.OnItemClickListener {
         } else View.GONE
         lvAllStops.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, stops)
         lvAllStops.onItemClickListener = this
+        operations.removeDeletedStopIdsFromRoutes(applicationContext)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
