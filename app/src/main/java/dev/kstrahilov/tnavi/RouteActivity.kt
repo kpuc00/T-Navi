@@ -5,7 +5,9 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
+import android.media.AudioAttributes
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AlphaAnimation
@@ -31,9 +33,9 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
     private lateinit var tvTimeColon: TextView
     private lateinit var lvRoute: ListView
     private lateinit var lineNumber: String
-    private var lineAnnouncement: Int = 0
+    private lateinit var lineAnnouncement: String
     private lateinit var direction: Direction
-    private var directionAnnouncement: Int = 0
+    private lateinit var directionAnnouncement: String
     private lateinit var route: ArrayList<Stop>
     private lateinit var loadedRoute: ArrayList<Stop>
     private lateinit var stopListAdapter: StopListAdapter
@@ -76,13 +78,11 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
         lineNumber = intent.getStringExtra("line").toString()
         val strLineAnnouncement = intent.getStringExtra("lineAnnouncement")
         lineAnnouncement = if (strLineAnnouncement != null && strLineAnnouncement != "null") {
-            strLineAnnouncement.toInt()
-        } else 0
+            strLineAnnouncement
+        } else "none"
 
         direction = intent.getParcelableExtra<Direction>("direction") as Direction
-        directionAnnouncement = if (direction.announcementFilePath != null) {
-            direction.announcementFilePath!!
-        } else 0
+        directionAnnouncement = direction.announcementFileName
 
         gpsStatus = findViewById(R.id.gps_status)
         if (!checkPermissions()) {
@@ -121,18 +121,18 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
         loadedRoute = ArrayList(route)
         populateListView(loadedRoute)
 
-        announce(R.raw.liniq)
+        announce("246.mp3")
         mediaPlayer.setOnCompletionListener {
-            if (lineAnnouncement != 0) {
+            if (lineAnnouncement != "none") {
                 announce(lineAnnouncement)
                 mediaPlayer.setOnCompletionListener {
-                    announce(R.raw.posoka)
+                    announce("251.mp3")
                     mediaPlayer.setOnCompletionListener {
                         announce(directionAnnouncement)
                     }
                 }
             } else {
-                announce(R.raw.posoka)
+                announce("251.mp3")
                 mediaPlayer.setOnCompletionListener {
                     announce(directionAnnouncement)
                 }
@@ -195,10 +195,25 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
     }
 
-    private fun announce(audio: Int) {
-        if (audio != 0) {
-            mediaPlayer = MediaPlayer.create(this, audio)
-            mediaPlayer.start()
+    private fun announce(fileName: String) {
+        if (fileName != "none") {
+            try {
+                mediaPlayer = MediaPlayer().apply {
+                    setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .build()
+                    )
+                    setDataSource(
+                        applicationContext,
+                        Uri.parse("${applicationContext.filesDir}/storage/audio/$fileName")
+                    )
+                    prepare()
+                    start()
+                }
+            } catch (_: java.lang.NullPointerException) {
+            }
         }
     }
 
@@ -244,10 +259,10 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
                                     populateListView(loadedRoute)
                                     updateStopInfoRow(nextStop)
                                     rowDateTimeAnim.startNow()
-                                    announce(R.raw.sledvashta_spirka)
+                                    announce("252.mp3")
                                     mediaPlayer.setOnCompletionListener {
-                                        if (nextStop.announcementFilePath != null) {
-                                            announce(nextStop.announcementFilePath!!)
+                                        if (nextStop.announcementFileName != "none") {
+                                            announce(nextStop.announcementFileName)
                                         }
                                     }
                                 }
@@ -268,11 +283,9 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
                                     }
                                     updateStopInfoRow(stop)
                                     rowDateTimeAnim.startNow()
-                                    announce(R.raw.spirka)
+                                    announce("253.mp3")
                                     mediaPlayer.setOnCompletionListener {
-                                        if (stop.announcementFilePath != null) {
-                                            announce(stop.announcementFilePath!!)
-                                        }
+                                        announce(stop.announcementFileName)
                                     }
                                     stop.isAnnounced = true
                                     loadedRoute[0].isAnnounced = true
@@ -309,7 +322,7 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         val stop: Stop = loadedRoute[position]
         if (!mediaPlayer.isPlaying) {
-            stop.announcementFilePath?.let { announce(it) }
+            announce(stop.announcementFileName)
         }
     }
 

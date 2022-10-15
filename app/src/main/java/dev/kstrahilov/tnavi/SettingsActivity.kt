@@ -12,7 +12,6 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import com.google.gson.Gson
 
 
 class SettingsActivity : AppCompatActivity(), OnItemClickListener {
@@ -95,10 +94,9 @@ class SettingsActivity : AppCompatActivity(), OnItemClickListener {
     private fun exportData() {
         val stopsData = operations.loadStopsFromInternalStorage(applicationContext)
         val linesData = operations.loadLinesFromInternalStorage(applicationContext)
-        val gson = Gson()
 
         operations.exportDataToExternalStorage(
-            applicationContext, application, gson.toJson(
+            applicationContext, application, operations.gson.toJson(
                 mapOf("stopsData" to stopsData, "linesData" to linesData)
             )
         )
@@ -113,14 +111,23 @@ class SettingsActivity : AppCompatActivity(), OnItemClickListener {
     private var resultLauncher = registerForActivityResult(StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             // There are no request codes
-            if (result.data != null) {
-                val uri = result.data!!.data
-                if (uri != null) {
-                    if (operations.importFromExternalData(this, uri)) {
-                        Toast.makeText(applicationContext, "done", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
+//            if (result.data != null) {
+//                val uri = result.data!!.data
+//                if (uri != null) {
+//                    val readBytes = contentResolver.openInputStream(uri)!!.readBytes()
+//                    val inputStream = ByteArrayInputStream(readBytes)
+//                    val path: String = applicationContext.filesDir.toString()
+//                    val directory = File("$path/storage/audio")
+//                    directory.mkdir()
+//                    val fileName = "/stops"
+//                    val file = File(directory.path, fileName)
+//                    inputStream.use { input ->
+//                        file.outputStream().use { output ->
+//                            input.copyTo(output)
+//                        }
+//                    }
+//                }
+//            }
         } else {
             return@registerForActivityResult
         }

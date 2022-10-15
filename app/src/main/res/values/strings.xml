@@ -76,4 +76,6 @@
     <string name="search">Търсене…</string>
     <string name="remove_stop_from_route">Тази спирка ще бъде премахната от маршрута. Желаете ли да продължите?</string>
     <string name="error_map">Възникна грешка при зареждането на картата</string>
+    <string name="selected_audio_file">Избран файл:</string>
+    <string name="copyright_text">© Kristiyan Strahilov</string>
 </resources>

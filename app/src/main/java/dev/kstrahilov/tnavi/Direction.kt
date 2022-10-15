@@ -9,7 +9,7 @@ class Direction(
     val id: UUID = UUID.randomUUID(),
     var title: String,
     var routeStopIds: ArrayList<UUID> = ArrayList(),
-    var announcementFilePath: Int? = null
+    var announcementFileName: String = "none"
 ) :
     Parcelable {
     override fun toString(): String {

@@ -57,7 +57,7 @@ class ChooseDirectionActivity : AppCompatActivity(), OnItemClickListener {
         } else {
             val intent = Intent(this, RouteActivity::class.java)
             intent.putExtra("line", storedLine.toString())
-            intent.putExtra("lineAnnouncement", storedLine.announcementFilePath.toString())
+            intent.putExtra("lineAnnouncement", storedLine.announcementFileName)
             intent.putExtra("direction", direction)
             startActivity(intent)
         }
@@ -68,8 +68,10 @@ class ChooseDirectionActivity : AppCompatActivity(), OnItemClickListener {
             .filter { it.id != storedLine.id }
 
         val path: String = applicationContext.filesDir.toString()
+        val directory = File("$path/storage")
+        directory.mkdir()
         val fileName = "/lines.json"
-        val file = File(path, fileName)
+        val file = File(directory.path, fileName)
 
         val jsonString: String = operations.gson.toJson(storedLines)
         file.writeText(jsonString, Charsets.UTF_8)

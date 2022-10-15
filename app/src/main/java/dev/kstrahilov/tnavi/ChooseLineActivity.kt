@@ -10,10 +10,6 @@ import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import java.io.File
-import java.lang.reflect.Type
 
 class ChooseLineActivity : AppCompatActivity(), OnItemClickListener {
     private lateinit var lvLines: ListView
@@ -22,7 +18,6 @@ class ChooseLineActivity : AppCompatActivity(), OnItemClickListener {
     private lateinit var lines: ArrayList<Line>
     private lateinit var tvEmptyListLines: TextView
     private var line: Line? = null
-    private var gson = Gson()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +38,6 @@ class ChooseLineActivity : AppCompatActivity(), OnItemClickListener {
         tvEmptyListLines.visibility = if (lines.size < 1) {
             View.VISIBLE
         } else View.GONE
-
         lvLines = findViewById(R.id.lv_lines)
         lvLines.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, lines)
         lvLines.onItemClickListener = this
@@ -64,92 +58,12 @@ class ChooseLineActivity : AppCompatActivity(), OnItemClickListener {
             }
             Line(number = number)
         }
-
-        val path: String = applicationContext.filesDir.toString()
-        val fileName = "/lines.json"
-        val file = File(path, fileName)
-
-        try {
-            if (file.exists()) {
-                val readJson = file.readText(Charsets.UTF_8)
-                val linesListType: Type = object : TypeToken<ArrayList<Line?>?>() {}.type
-                val readLines: ArrayList<Line> = gson.fromJson(readJson, linesListType)
-                if (line != null) {
-                    Toast.makeText(applicationContext, "not null", Toast.LENGTH_SHORT).show()
-                    val currentLine: Line =
-                        readLines.filter { it.id.toString() == line?.id.toString() }[0]
-
-                    //Updating the line
-                    //First remove it and add it again when updated
-                    readLines.remove(currentLine)
-                    readLines.add(newLine)
-                } else {
-                    if (readLines.any { it.number == newLine.number }) {
-                        val alert = AlertDialog.Builder(this)
-                        alert.setTitle(application.getString(R.string.error))
-                        alert.setMessage(application.getString(R.string.line_exists))
-                        alert.setNegativeButton(application.getString(R.string.ok)) { _, _ -> }
-                        val alertDialog = alert.create()
-                        alertDialog.show()
-                        return
-                    } else {
-                        readLines.add(newLine)
-                    }
-                }
-                readLines.sortBy { it.number }
-                val jsonString: String = gson.toJson(readLines)
-                file.writeText(jsonString, Charsets.UTF_8)
-                line?.let { checkIfDataWritten(file, jsonString, it.number) }
-
-            } else {
-                val jsonString: String = gson.toJson(arrayListOf(newLine))
-                file.writeText(jsonString, Charsets.UTF_8)
-                line?.let { checkIfDataWritten(file, jsonString, it.number) }
-            }
+        if (operations.saveLine(applicationContext, line, newLine)) {
             val intent = Intent(this, DirectionFormActivity::class.java)
             intent.putExtra("lineId", newLine.id.toString())
             startActivity(intent)
-        } catch (e: Exception) {
-            Toast.makeText(
-                applicationContext,
-                applicationContext.getString(R.string.error_message),
-                Toast.LENGTH_LONG
-            ).show()
-            e.printStackTrace()
         }
     }
-
-    private fun checkIfDataWritten(
-        file: File, jsonString: String, directionTitleToDisplay: String
-    ) {
-        if (file.readText(Charsets.UTF_8) == jsonString) {
-            if (line != null) {
-                Toast.makeText(
-                    applicationContext,
-                    "${applicationContext.getString(R.string.line_)} $directionTitleToDisplay ${
-                        applicationContext.getString(R.string.was_modified)
-                    }",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                Toast.makeText(
-                    applicationContext,
-                    "${applicationContext.getString(R.string.line_)} $directionTitleToDisplay ${
-                        applicationContext.getString(R.string.was_created)
-                    }",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            finish()
-        } else {
-            Toast.makeText(
-                applicationContext,
-                applicationContext.getString(R.string.error_message),
-                Toast.LENGTH_LONG
-            ).show()
-        }
-    }
-
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         return if (isManager) {

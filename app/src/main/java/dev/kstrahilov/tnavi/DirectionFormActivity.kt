@@ -2,7 +2,6 @@ package dev.kstrahilov.tnavi
 
 import android.os.Bundle
 import android.text.Editable
-import android.text.InputType
 import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
@@ -11,10 +10,6 @@ import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import java.io.File
-import java.lang.reflect.Type
 
 class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
     private var lineId: String? = null
@@ -24,7 +19,6 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
     private lateinit var btnPickStop: Button
     private var route: ArrayList<Stop> = ArrayList()
     private lateinit var adapter: ArrayAdapter<Stop>
-    private var gson = Gson()
     private val operations = Operations()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,51 +93,8 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
             )
 
         }
-
-        val path: String = applicationContext.filesDir.toString()
-        val fileName = "/lines.json"
-        val file = File(path, fileName)
-
-        try {
-            if (file.exists()) {
-                val readJson = file.readText(Charsets.UTF_8)
-                val linesListType: Type = object : TypeToken<ArrayList<Line?>?>() {}.type
-                val readLines: ArrayList<Line> = gson.fromJson(readJson, linesListType)
-                val currentLine: Line = readLines.filter { it.id.toString() == lineId }[0]
-
-                //Updating the line with new a direction
-                //First remove it and add it again when updated
-                readLines.remove(currentLine)
-                //Remove old direction to keep only the new one
-                if (direction != null) {
-                    val readDirection = currentLine.directions!!.filter {
-                        it.id.toString() == direction!!.id.toString()
-                    }[0]
-                    currentLine.directions!!.remove(readDirection)
-                }
-                currentLine.directions!!.add(newDirection)
-                currentLine.directions!!.sortBy { it.title.lowercase() }
-                readLines.add(currentLine)
-                readLines.sortBy { it.number }
-
-                val jsonString: String = gson.toJson(readLines)
-                file.writeText(jsonString, Charsets.UTF_8)
-                checkIfDataWritten(file, jsonString, newDirection.title)
-            } else {
-                Toast.makeText(
-                    applicationContext,
-                    applicationContext.getString(R.string.error_message),
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        } catch (e: Exception) {
-            Toast.makeText(
-                applicationContext,
-                applicationContext.getString(R.string.error_message),
-                Toast.LENGTH_LONG
-            ).show()
-            e.printStackTrace()
-        }
+        operations.saveDirection(applicationContext, lineId, direction, newDirection)
+        finish()
     }
 
     private fun addStopToRoute() {
@@ -157,84 +108,6 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
         }
         val dialog = builder.create()
         dialog.show()
-    }
-
-    private fun checkIfDataWritten(
-        file: File, jsonString: String, directionTitleToDisplay: String
-    ) {
-        if (file.readText(Charsets.UTF_8) == jsonString) {
-            if (direction != null) {
-                Toast.makeText(
-                    applicationContext,
-                    "${applicationContext.getString(R.string.direction_)} $directionTitleToDisplay ${
-                        applicationContext.getString(R.string.was_modified)
-                    }",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                Toast.makeText(
-                    applicationContext,
-                    "${applicationContext.getString(R.string.direction_)} $directionTitleToDisplay ${
-                        applicationContext.getString(R.string.was_created)
-                    }",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            finish()
-        } else {
-            Toast.makeText(
-                applicationContext,
-                applicationContext.getString(R.string.error_message),
-                Toast.LENGTH_LONG
-            ).show()
-        }
-    }
-
-    private fun deleteDirection() {
-        val path: String = applicationContext.filesDir.toString()
-        val fileName = "/lines.json"
-        val file = File(path, fileName)
-
-        try {
-            if (file.exists()) {
-                val readJson = file.readText(Charsets.UTF_8)
-                val linesListType: Type = object : TypeToken<ArrayList<Line?>?>() {}.type
-                val readLines: ArrayList<Line> = gson.fromJson(readJson, linesListType)
-                val currentLine: Line = readLines.filter { it.id.toString() == lineId }[0]
-
-                //Updating the line with removed direction
-                //First remove it and add it again when updated
-                readLines.remove(currentLine)
-                //Remove direction
-                if (direction != null) {
-                    val readDirection = currentLine.directions!!.filter {
-                        it.id.toString() == direction!!.id.toString()
-                    }[0]
-                    currentLine.directions!!.remove(readDirection)
-                }
-                readLines.add(currentLine)
-                readLines.sortBy { it.number }
-
-                val jsonString: String = gson.toJson(readLines)
-                file.writeText(jsonString, Charsets.UTF_8)
-                checkIfDataWritten(file, jsonString, direction!!.title)
-            } else {
-                Toast.makeText(
-                    applicationContext,
-                    applicationContext.getString(R.string.error_message),
-                    Toast.LENGTH_LONG
-                ).show()
-                finish()
-            }
-        } catch (e: Exception) {
-            Toast.makeText(
-                applicationContext,
-                applicationContext.getString(R.string.error_message),
-                Toast.LENGTH_LONG
-            ).show()
-            e.printStackTrace()
-            finish()
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -257,7 +130,7 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
             alert.setTitle(application.getString(R.string.action_delete))
             alert.setMessage(application.getString(R.string.direction_delete))
             alert.setPositiveButton(application.getString(R.string.yes)) { _, _ ->
-                deleteDirection()
+                direction?.let { operations.deleteDirection(applicationContext, lineId, it) }
                 finish()
             }
             alert.setNegativeButton(application.getString(R.string.no)) { _, _ -> }

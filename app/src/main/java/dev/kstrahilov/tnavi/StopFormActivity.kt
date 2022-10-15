@@ -1,19 +1,20 @@
 package dev.kstrahilov.tnavi
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.res.Resources.NotFoundException
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -21,19 +22,20 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import java.io.File
-import java.lang.reflect.Type
 
 
 class StopFormActivity : AppCompatActivity() {
     private lateinit var stopIdRow: LinearLayout
     private lateinit var tvStopId: TextView
     private lateinit var etStopTitle: EditText
+    private lateinit var btnChooseAudio: Button
     private lateinit var selectedLocation: LatLng
     private var stop: Stop? = null
-    private var gson = Gson()
+    private var operations = Operations()
+    private var selectedAudioFileName: String? = null
+    private var selectedFile: Uri? = null
+    private lateinit var audioFileRow: LinearLayout
+    private lateinit var tvSelectedAudioFile: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +48,10 @@ class StopFormActivity : AppCompatActivity() {
         }
 
         etStopTitle = findViewById(R.id.et_stop_title)
+        btnChooseAudio = findViewById(R.id.btn_choose_audio)
+
+        audioFileRow = findViewById(R.id.audio_file_row)
+        tvSelectedAudioFile = findViewById(R.id.tv_selected_audio_file)
 
         if (stop != null) {
             title = application.getString(R.string.label_edit_stop)
@@ -54,6 +60,12 @@ class StopFormActivity : AppCompatActivity() {
             tvStopId = findViewById(R.id.tv_stop_id)
             tvStopId.text = stop!!.id.toString()
             stopIdRow.visibility = View.VISIBLE
+
+            selectedAudioFileName = stop!!.announcementFileName
+            if (stop!!.announcementFileName != "none") {
+                tvSelectedAudioFile.text = stop!!.announcementFileName
+                audioFileRow.visibility = View.VISIBLE
+            }
 
             etStopTitle.setText(stop!!.title)
             etStopTitle.addTextChangedListener(object : TextWatcher {
@@ -70,13 +82,17 @@ class StopFormActivity : AppCompatActivity() {
             title = application.getString(R.string.label_create_stop)
         }
 
+        btnChooseAudio.setOnClickListener {
+            openFilePicker()
+        }
+
         val mapFragment = supportFragmentManager.findFragmentById(
             R.id.map
         ) as? SupportMapFragment
 
         try {
             mapFragment?.getMapAsync { googleMap ->
-                googleMap.setMyLocationEnabled(true)
+                googleMap.isMyLocationEnabled = true
                 googleMap.mapType = GoogleMap.MAP_TYPE_HYBRID
                 if (stop != null) {
                     googleMap.addMarker(
@@ -133,7 +149,8 @@ class StopFormActivity : AppCompatActivity() {
             alert.setTitle(application.getString(R.string.action_delete))
             alert.setMessage(application.getString(R.string.stop_delete))
             alert.setPositiveButton(application.getString(R.string.yes)) { _, _ ->
-                deleteStop()
+                operations.deleteStop(applicationContext, stop)
+                finish()
             }
             alert.setNegativeButton(application.getString(R.string.no)) { _, _ -> }
             val alertDialog = alert.create()
@@ -160,119 +177,15 @@ class StopFormActivity : AppCompatActivity() {
             }
             stops.add(Stop(title = etStopTitle.text.toString().trim(), location = selectedLocation))
         }
+        operations.saveStop(
+            applicationContext,
+            stop,
+            stops,
+            selectedFile,
+            selectedAudioFileName
+        )
+        finish()
 
-        val path: String = applicationContext.filesDir.toString()
-        val fileName = "/stops.json"
-        val file = File(path, fileName)
-
-        try {
-            if (file.exists()) {
-                val readJson = file.readText(Charsets.UTF_8)
-                val stopListType: Type = object : TypeToken<ArrayList<Stop?>?>() {}.type
-                val readStops: ArrayList<Stop> = gson.fromJson(readJson, stopListType)
-
-                //Remove old stop to keep only the new one
-                if (stop != null) {
-                    val readStop = readStops.filter {
-                        it.id == stop!!.id
-                    }[0]
-                    readStops.remove(readStop)
-                }
-                readStops.addAll(stops)
-                readStops.sortBy { it.title.lowercase() }
-
-                val jsonString: String = gson.toJson(readStops)
-                file.writeText(jsonString, Charsets.UTF_8)
-                checkIfDataWritten(file, jsonString, stops[0].title)
-            } else {
-                val jsonString: String = gson.toJson(stops)
-                file.writeText(jsonString, Charsets.UTF_8)
-                checkIfDataWritten(file, jsonString, stops[0].title)
-            }
-        } catch (e: Exception) {
-            Toast.makeText(
-                applicationContext,
-                applicationContext.getString(R.string.error_message),
-                Toast.LENGTH_LONG
-            ).show()
-            e.printStackTrace()
-        }
-    }
-
-    private fun deleteStop() {
-        val path: String = applicationContext.filesDir.toString()
-        val fileName = "/stops.json"
-        val file = File(path, fileName)
-
-        try {
-            if (file.exists()) {
-                val readJson = file.readText(Charsets.UTF_8)
-                val stopListType: Type = object : TypeToken<ArrayList<Stop?>?>() {}.type
-                val readStops: ArrayList<Stop> = gson.fromJson(readJson, stopListType)
-
-                //Remove old stop to keep only the new one
-                if (stop != null) {
-                    val readStop = readStops.filter {
-                        it.id == stop!!.id
-                    }[0]
-                    readStops.remove(readStop)
-                    val jsonString: String = gson.toJson(readStops)
-                    file.writeText(jsonString, Charsets.UTF_8)
-                    Toast.makeText(
-                        applicationContext,
-                        "${applicationContext.getString(R.string.stop_)} ${stop!!.title} ${
-                            applicationContext.getString(R.string.was_deleted)
-                        }",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    finish()
-                }
-            } else {
-                Toast.makeText(
-                    applicationContext,
-                    applicationContext.getString(R.string.error_message),
-                    Toast.LENGTH_LONG
-                ).show()
-                finish()
-            }
-        } catch (e: Exception) {
-            Toast.makeText(
-                applicationContext,
-                applicationContext.getString(R.string.error_message),
-                Toast.LENGTH_LONG
-            ).show()
-            e.printStackTrace()
-            finish()
-        }
-    }
-
-    private fun checkIfDataWritten(file: File, jsonString: String, stopTitleToDisplay: String) {
-        if (file.readText(Charsets.UTF_8) == jsonString) {
-            if (stop != null) {
-                Toast.makeText(
-                    applicationContext,
-                    "${applicationContext.getString(R.string.stop_)} $stopTitleToDisplay ${
-                        applicationContext.getString(R.string.was_modified)
-                    }",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                Toast.makeText(
-                    applicationContext,
-                    "${applicationContext.getString(R.string.stop_)} $stopTitleToDisplay ${
-                        applicationContext.getString(R.string.was_created)
-                    }",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            finish()
-        } else {
-            Toast.makeText(
-                applicationContext,
-                applicationContext.getString(R.string.error_message),
-                Toast.LENGTH_LONG
-            ).show()
-        }
     }
 
     private var circle: Circle? = null
@@ -297,4 +210,26 @@ class StopFormActivity : AppCompatActivity() {
         vectorDrawable.draw(canvas)
         return BitmapDescriptorFactory.fromBitmap(bitmap)
     }
+
+    private fun openFilePicker() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "audio/*"
+        resultLauncher.launch(intent)
+    }
+
+    private var resultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // There are no request codes
+                if (result.data != null) {
+                    selectedFile = result.data!!.data!!
+                    selectedAudioFileName =
+                        operations.getFileNameFromUri(applicationContext, selectedFile).toString()
+                    tvSelectedAudioFile.text = selectedAudioFileName
+                    audioFileRow.visibility = View.VISIBLE
+                }
+            } else {
+                return@registerForActivityResult
+            }
+        }
 }

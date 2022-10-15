@@ -9,7 +9,7 @@ class Line(
     val id: UUID = UUID.randomUUID(),
     var number: String,
     var directions: ArrayList<Direction>? = ArrayList(),
-    var announcementFilePath: Int? = null
+    var announcementFileName: String = "none"
 ) : Parcelable {
     override fun toString(): String {
         return number

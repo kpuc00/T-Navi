@@ -10,7 +10,7 @@ class Stop(
     val id: UUID = UUID.randomUUID(),
     var title: String,
     var location: LatLng = LatLng(0.0, 0.0),
-    var announcementFilePath: Int? = null,
+    var announcementFileName: String = "none",
     var isCurrent: Boolean = false,
     var isNext: Boolean = false,
     var isAnnounced: Boolean = false,
