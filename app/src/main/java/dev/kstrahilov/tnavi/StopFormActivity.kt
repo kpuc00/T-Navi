@@ -97,7 +97,7 @@ class StopFormActivity : AppCompatActivity() {
                 if (stop != null) {
                     googleMap.addMarker(
                         MarkerOptions().position(stop!!.location)
-                            .icon(bitmapFromVector(applicationContext, R.drawable.spirka))
+                            .icon(bitmapFromVector(applicationContext, R.drawable.stop))
                             .anchor(0.5F, 0.5F)
                     )
                     googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(stop!!.location, 17F))
@@ -109,7 +109,7 @@ class StopFormActivity : AppCompatActivity() {
                     googleMap.clear()
                     googleMap.addMarker(
                         MarkerOptions().position(selectedLocation)
-                            .icon(bitmapFromVector(applicationContext, R.drawable.spirka))
+                            .icon(bitmapFromVector(applicationContext, R.drawable.stop))
                             .anchor(0.5F, 0.5F)
                     )
                     addCircle(googleMap, selectedLocation)
@@ -201,10 +201,10 @@ class StopFormActivity : AppCompatActivity() {
     private fun bitmapFromVector(context: Context, vectorResId: Int): BitmapDescriptor {
         val vectorDrawable = ContextCompat.getDrawable(context, vectorResId)
         vectorDrawable!!.setBounds(
-            0, 0, vectorDrawable.intrinsicWidth, vectorDrawable.intrinsicHeight
+            0, 0, 70, 70
         )
         val bitmap = Bitmap.createBitmap(
-            vectorDrawable.intrinsicWidth, vectorDrawable.intrinsicHeight, Bitmap.Config.ARGB_8888
+            70, 70, Bitmap.Config.ARGB_8888
         )
         val canvas = Canvas(bitmap)
         vectorDrawable.draw(canvas)

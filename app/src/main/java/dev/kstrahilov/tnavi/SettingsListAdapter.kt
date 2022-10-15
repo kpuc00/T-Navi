@@ -28,7 +28,7 @@ class SettingsListAdapter(var context: Context, private var array: Array<String>
 
         when (val item: String = array[p0]) {
             "stopManager" -> {
-                ivIcon.setImageResource(R.drawable.spirka)
+                ivIcon.setImageResource(R.drawable.stop)
                 tvTitle.text = context.getString(R.string.stops_manager)
             }
             "lineManager" -> {

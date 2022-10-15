@@ -27,13 +27,13 @@ class StopListAdapter(var context: Context, var arrayList: ArrayList<Stop>) : Ba
 
         val stop: Stop = arrayList[p0]
         if (stop.isCurrent) {
-            ivStop.setImageResource(R.drawable.tekushta_spirka)
+            ivStop.setImageResource(R.drawable.current_stop)
             tvTitle.setTextColor(tvTitle.context.getColor(R.color.red))
         } else if (stop.isNext) {
-            ivStop.setImageResource(R.drawable.sledvashta_spirka)
+            ivStop.setImageResource(R.drawable.next_stop)
             tvTitle.setTextColor(tvTitle.context.getColor(R.color.green))
         } else {
-            ivStop.setImageResource(R.drawable.spirka)
+            ivStop.setImageResource(R.drawable.stop)
             tvTitle.setTextColor(tvTitle.context.getColor(R.color.black))
         }
         tvTitle.text = stop.title
