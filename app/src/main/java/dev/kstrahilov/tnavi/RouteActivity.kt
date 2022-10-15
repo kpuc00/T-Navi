@@ -20,6 +20,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.google.android.gms.location.*
+import java.io.FileNotFoundException
 
 class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
     private lateinit var locationRequest: LocationRequest
@@ -200,10 +201,8 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
             try {
                 mediaPlayer = MediaPlayer().apply {
                     setAudioAttributes(
-                        AudioAttributes.Builder()
-                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                            .setUsage(AudioAttributes.USAGE_MEDIA)
-                            .build()
+                        AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .setUsage(AudioAttributes.USAGE_MEDIA).build()
                     )
                     setDataSource(
                         applicationContext,
@@ -212,7 +211,11 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
                     prepare()
                     start()
                 }
-            } catch (_: java.lang.NullPointerException) {
+            } catch (e: Exception) {
+                when (e) {
+                    is java.lang.NullPointerException, is FileNotFoundException -> {}
+                    else -> throw e
+                }
             }
         }
     }

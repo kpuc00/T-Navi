@@ -114,8 +114,8 @@ class Operations {
     }
 
     private fun importAudioFileToInternalStorage(
-        applicationContext: Context, uri: Uri?
-    ) {
+        applicationContext: Context, uri: Uri?, objectId: UUID
+    ): String {
         if (uri != null) {
             try {
                 applicationContext.contentResolver.openInputStream(uri)!!.use {
@@ -123,22 +123,26 @@ class Operations {
                     val path: String = applicationContext.filesDir.toString()
                     val directory = File("$path/$AUDIO_PATH")
                     directory.mkdir()
-                    val fileName = getFileNameFromUri(applicationContext, uri)
+                    val subStr = objectId.toString().substringBefore("-")
+                    val fileName = "${subStr}_${getFileNameFromUri(applicationContext, uri)}"
                     val file = File(directory.path, fileName!!)
                     inputStream.use { input ->
                         file.outputStream().use { output ->
                             input.copyTo(output)
                         }
                     }
+                    return fileName
                 }
             } catch (_: FileNotFoundException) {
                 Toast.makeText(
                     applicationContext,
-                    applicationContext.getString(R.string.error_message),
+                    applicationContext.getString(R.string.file_upload_error_message),
                     Toast.LENGTH_LONG
                 ).show()
+                return "error"
             }
         }
+        return "error"
     }
 
     private fun deleteOldAudioFile(applicationContext: Context, fileName: String): Boolean {
@@ -193,8 +197,14 @@ class Operations {
             if (selectedFile != null && selectedAudioFileName != null) {
                 if (stops[0].announcementFileName != selectedAudioFileName) {
                     deleteOldAudioFile(applicationContext, stops[0].announcementFileName)
-                    importAudioFileToInternalStorage(applicationContext, selectedFile)
-                    stops[0].announcementFileName = selectedAudioFileName
+                    val finalFileName = importAudioFileToInternalStorage(
+                        applicationContext,
+                        selectedFile,
+                        stops[0].id
+                    )
+                    if (finalFileName != "error") {
+                        stops[0].announcementFileName = finalFileName
+                    }
                 }
             }
             val currentStop = stops[0]
@@ -298,7 +308,12 @@ class Operations {
     }
 
     fun saveDirection(
-        applicationContext: Context, lineId: String?, direction: Direction?, newDirection: Direction
+        applicationContext: Context,
+        lineId: String?,
+        direction: Direction?,
+        newDirection: Direction,
+        selectedFile: Uri?,
+        selectedAudioFileName: String?
     ): Boolean {
         val path: String = applicationContext.filesDir.toString()
         val directory = File("$path/$STORAGE_PATH")
@@ -322,6 +337,19 @@ class Operations {
                         it.id.toString() == direction.id.toString()
                     }[0]
                     currentLine.directions!!.remove(readDirection)
+                }
+                if (selectedFile != null && selectedAudioFileName != null) {
+                    if (newDirection.announcementFileName != selectedAudioFileName) {
+                        deleteOldAudioFile(applicationContext, newDirection.announcementFileName)
+                        val finalFileName = importAudioFileToInternalStorage(
+                            applicationContext,
+                            selectedFile,
+                            newDirection.id
+                        )
+                        if (finalFileName != "error") {
+                            newDirection.announcementFileName = finalFileName
+                        }
+                    }
                 }
                 currentLine.directions!!.add(newDirection)
                 currentLine.directions!!.sortBy { it.title.lowercase() }
@@ -446,6 +474,79 @@ class Operations {
         }
     }
 
+    fun updateLine(
+        applicationContext: Context,
+        line: Line,
+        selectedFile: Uri?,
+        selectedAudioFileName: String?
+    ): Boolean {
+        val path: String = applicationContext.filesDir.toString()
+        val directory = File("$path/$STORAGE_PATH")
+        directory.mkdir()
+        val fileName = "/$LINES_FILE_NAME"
+        val file = File(directory.path, fileName)
+        val lines: ArrayList<Line> = ArrayList()
+
+        try {
+            if (file.exists()) {
+                val readJson = file.readText(Charsets.UTF_8)
+                val stopListType: Type = object : TypeToken<ArrayList<Line?>?>() {}.type
+                val readLines: ArrayList<Line> = gson.fromJson(readJson, stopListType)
+
+                //Remove old line to keep only the new one
+                val readLine = readLines.filter {
+                    it.id == line.id
+                }[0]
+                readLines.remove(readLine)
+                lines.addAll(readLines)
+            }
+            if (lines.any { it.number == line.number }) {
+                val alert = AlertDialog.Builder(applicationContext)
+                alert.setTitle(applicationContext.getString(R.string.error))
+                alert.setMessage(applicationContext.getString(R.string.line_exists))
+                alert.setNegativeButton(applicationContext.getString(R.string.ok)) { _, _ -> }
+                val alertDialog = alert.create()
+                alertDialog.show()
+                return false
+            }
+            if (selectedFile != null && selectedAudioFileName != null) {
+                if (line.announcementFileName != selectedAudioFileName) {
+                    deleteOldAudioFile(applicationContext, line.announcementFileName)
+                    val finalFileName = importAudioFileToInternalStorage(
+                        applicationContext,
+                        selectedFile,
+                        line.id
+                    )
+                    if (finalFileName != "error") {
+                        line.announcementFileName = finalFileName
+                        lines.add(line)
+                    }
+                }
+            }
+            lines.sortBy { it.number.lowercase() }
+            val jsonString = gson.toJson(lines)
+            file.writeText(jsonString, Charsets.UTF_8)
+            Toast.makeText(
+                applicationContext,
+                "${applicationContext.getString(R.string.line_)} ${line.number} ${
+                    applicationContext.getString(
+                        R.string.was_modified
+                    )
+                }",
+                Toast.LENGTH_SHORT
+            ).show()
+            return true
+        } catch (e: Exception) {
+            Toast.makeText(
+                applicationContext,
+                applicationContext.getString(R.string.error_message),
+                Toast.LENGTH_LONG
+            ).show()
+            e.printStackTrace()
+            return false
+        }
+    }
+
     fun saveLine(applicationContext: Context, line: Line?, newLine: Line): Boolean {
         val lines: ArrayList<Line> = ArrayList()
         val path: String = applicationContext.filesDir.toString()
@@ -460,7 +561,6 @@ class Operations {
                 val linesListType: Type = object : TypeToken<ArrayList<Line?>?>() {}.type
                 val readLines: ArrayList<Line> = gson.fromJson(readJson, linesListType)
                 if (line != null) {
-                    Toast.makeText(applicationContext, "not null", Toast.LENGTH_SHORT).show()
                     val currentLine: Line =
                         readLines.filter { it.id.toString() == line.id.toString() }[0]
 

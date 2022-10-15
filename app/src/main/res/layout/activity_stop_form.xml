@@ -56,7 +56,7 @@
                 android:text="@string/select_audio_stop_text" />
 
             <Button
-                android:id="@+id/btn_choose_audio"
+                android:id="@+id/btn_choose_audio_stop"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/choose_file"
@@ -64,7 +64,7 @@
                 app:iconGravity="textStart" />
 
             <LinearLayout
-                android:id="@+id/audio_file_row"
+                android:id="@+id/audio_stop_file_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -76,7 +76,11 @@
                     android:text="@string/selected_audio_file" />
 
                 <TextView
-                    android:id="@+id/tv_selected_audio_file"
+                    android:id="@+id/tv_selected_audio_stop_file"
+                    android:ellipsize="marquee"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:maxLines="1"
+                    android:singleLine="true"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 

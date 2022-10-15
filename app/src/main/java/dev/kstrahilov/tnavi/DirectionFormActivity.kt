@@ -1,5 +1,8 @@
 package dev.kstrahilov.tnavi
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -8,6 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
@@ -16,7 +20,12 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
     private var direction: Direction? = null
     private lateinit var etDirectionTitle: EditText
     private lateinit var lvDirectionStops: ListView
+    private lateinit var btnChooseAudio: Button
     private lateinit var btnPickStop: Button
+    private lateinit var audioFileRow: LinearLayout
+    private lateinit var tvSelectedAudioFile: TextView
+    private var selectedAudioFileName: String? = null
+    private var selectedFile: Uri? = null
     private var route: ArrayList<Stop> = ArrayList()
     private lateinit var adapter: ArrayAdapter<Stop>
     private val operations = Operations()
@@ -37,6 +46,10 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
         btnPickStop.setOnClickListener {
             addStopToRoute()
         }
+        btnChooseAudio = findViewById(R.id.btn_choose_audio_direction)
+        audioFileRow = findViewById(R.id.audio_direction_file_row)
+        tvSelectedAudioFile = findViewById(R.id.tv_selected_audio_direction_file)
+        tvSelectedAudioFile.isSelected = true
 
         if (direction != null) {
             title = application.getString(R.string.label_edit_direction)
@@ -52,8 +65,18 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
                 }
 
             })
+
+            selectedAudioFileName = direction!!.announcementFileName
+            if (direction!!.announcementFileName != "none") {
+                tvSelectedAudioFile.text = direction!!.announcementFileName
+                audioFileRow.visibility = View.VISIBLE
+            }
         } else {
             title = application.getString(R.string.label_create_direction)
+        }
+
+        btnChooseAudio.setOnClickListener {
+            openFilePicker()
         }
     }
 
@@ -93,7 +116,14 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
             )
 
         }
-        operations.saveDirection(applicationContext, lineId, direction, newDirection)
+        operations.saveDirection(
+            applicationContext,
+            lineId,
+            direction,
+            newDirection,
+            selectedFile,
+            selectedAudioFileName
+        )
         finish()
     }
 
@@ -155,4 +185,26 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
         val alertDialog = alert.create()
         alertDialog.show()
     }
+
+    private fun openFilePicker() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "audio/*"
+        resultLauncher.launch(intent)
+    }
+
+    private var resultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // There are no request codes
+                if (result.data != null) {
+                    selectedFile = result.data!!.data!!
+                    selectedAudioFileName =
+                        operations.getFileNameFromUri(applicationContext, selectedFile).toString()
+                    tvSelectedAudioFile.text = selectedAudioFileName
+                    audioFileRow.visibility = View.VISIBLE
+                }
+            } else {
+                return@registerForActivityResult
+            }
+        }
 }

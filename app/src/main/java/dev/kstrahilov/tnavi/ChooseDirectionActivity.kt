@@ -34,8 +34,12 @@ class ChooseDirectionActivity : AppCompatActivity(), OnItemClickListener {
 
     override fun onResume() {
         super.onResume()
-        storedLine =
-            operations.loadLinesFromInternalStorage(applicationContext).find { it.id == line.id }!!
+        try {
+            storedLine =
+                operations.loadLinesFromInternalStorage(applicationContext)
+                    .find { it.id == line.id }!!
+        } catch (_: java.lang.NullPointerException) {
+        }
         lvDirections = findViewById(R.id.lv_directions)
         tvEmptyListDestinations = findViewById(R.id.tv_empty_list_destinations)
         tvEmptyListDestinations.visibility = if (storedLine.directions!!.size < 1) {
@@ -88,6 +92,7 @@ class ChooseDirectionActivity : AppCompatActivity(), OnItemClickListener {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         if (isManager) {
+            menuInflater.inflate(R.menu.menu_edit, menu)
             menuInflater.inflate(R.menu.menu_delete, menu)
             menuInflater.inflate(R.menu.menu_add, menu)
         }
@@ -96,6 +101,12 @@ class ChooseDirectionActivity : AppCompatActivity(), OnItemClickListener {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_edit -> {
+            val intent = Intent(this, EditLineActivity::class.java)
+            intent.putExtra("line", storedLine)
+            startActivity(intent)
+            true
+        }
         R.id.action_delete -> {
             val alert = AlertDialog.Builder(this)
             alert.setTitle(application.getString(R.string.action_delete))

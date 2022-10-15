@@ -69,6 +69,7 @@
     <string name="label_create_line">Създаване на линия:</string>
     <string name="line_number">Номер на линията: (*)</string>
     <string name="line_">Линия</string>
+    <string name="label_edit_line">Промяна на линия:</string>
     <string name="line_exists">Опитвате се да създадете съществуваща линия!</string>
     <string name="reset_data">Нулиране  с фабричните настройки</string>
     <string name="reset_data_message">"ВНИМАНИЕ!\n\nТова действие ще нулира системата до нейните фабрични настройки по подразбиране като изтрие всички маршрути и спирки. Желаете ли да продължите?"</string>
@@ -78,4 +79,7 @@
     <string name="error_map">Възникна грешка при зареждането на картата</string>
     <string name="selected_audio_file">Избран файл:</string>
     <string name="copyright_text">© Kristiyan Strahilov</string>
+    <string name="file_upload_error_message">Възникна грешка при записването на файла!</string>
+    <string name="select_audio_line_text">Посочете аудио за гласово оповестяване на линията:</string>
+    <string name="action_edit">Промяна</string>
 </resources>

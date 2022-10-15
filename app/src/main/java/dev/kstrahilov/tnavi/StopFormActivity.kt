@@ -48,10 +48,11 @@ class StopFormActivity : AppCompatActivity() {
         }
 
         etStopTitle = findViewById(R.id.et_stop_title)
-        btnChooseAudio = findViewById(R.id.btn_choose_audio)
+        btnChooseAudio = findViewById(R.id.btn_choose_audio_stop)
 
-        audioFileRow = findViewById(R.id.audio_file_row)
-        tvSelectedAudioFile = findViewById(R.id.tv_selected_audio_file)
+        audioFileRow = findViewById(R.id.audio_stop_file_row)
+        tvSelectedAudioFile = findViewById(R.id.tv_selected_audio_stop_file)
+        tvSelectedAudioFile.isSelected = true
 
         if (stop != null) {
             title = application.getString(R.string.label_edit_stop)

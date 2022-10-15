@@ -32,9 +32,9 @@
 
             <TextView
                 android:layout_width="match_parent"
-                android:textColor="@color/gray"
                 android:layout_height="wrap_content"
-                android:text="@string/select_audio_direction_text" />
+                android:text="@string/select_audio_direction_text"
+                android:textColor="@color/gray" />
 
             <Button
                 android:id="@+id/btn_choose_audio_direction"
@@ -43,6 +43,29 @@
                 android:text="@string/choose_file"
                 app:icon="@drawable/ic_baseline_file_upload_white_24"
                 app:iconGravity="textStart" />
+
+            <LinearLayout
+                android:id="@+id/audio_direction_file_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="invisible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/selected_audio_file" />
+
+                <TextView
+                    android:id="@+id/tv_selected_audio_direction_file"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="marquee"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+            </LinearLayout>
         </LinearLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -54,8 +77,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/route"
-                android:textSize="25sp"
                 android:textColor="@color/gray"
+                android:textSize="25sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
