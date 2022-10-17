@@ -35,6 +35,10 @@ class SettingsListAdapter(var context: Context, private var array: Array<String>
                 ivIcon.setImageResource(R.drawable.ic_baseline_format_list_numbered_24)
                 tvTitle.text = context.getString(R.string.lines_manager)
             }
+            "systemAnnouncements" -> {
+                ivIcon.setImageResource(R.drawable.ic_baseline_queue_music_24)
+                tvTitle.text = context.getString(R.string.system_announcements)
+            }
             "exportData" -> {
                 ivIcon.setImageResource(R.drawable.ic_baseline_download_24)
                 tvTitle.text = context.getString(R.string.export_data)

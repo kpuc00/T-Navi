@@ -51,7 +51,7 @@
     <string name="import_data">Импортиране на данни</string>
     <string name="storage_access_denied">Нужен е достъп до файловете, за да използвате системата!</string>
     <string name="gps_status">Статус на местоположението</string>
-    <string name="data_exported">Данните бяха експортирани в папката /Documents/T-Navi</string>
+    <string name="data_exported">Данните бяха експортирани в папката /Documents/</string>
     <string name="data_imported">Данните бяха импортирани успешно в системата!</string>
     <string name="import_data_message">"ВНИМАНИЕ!\n\nТова действие ще замести настоящите данни в системата. Желаете ли да продължите?"</string>
     <string name="form_incomplete">Не сте попълнили задължителните полета! (*)</string>
@@ -61,14 +61,14 @@
     <string name="empty_list_lines">Няма линии.</string>
     <string name="direction_title">Име на посоката: *</string>
     <string name="select_audio_direction_text">Посочете аудио за гласово оповестяване на посоката:</string>
-    <string name="pick_stops">Изберете спирки</string>
+    <string name="pick_stops">Изберете спирки:</string>
     <string name="label_edit_direction">Промяна на посока:</string>
     <string name="label_create_direction">Създаване на посока:</string>
     <string name="direction_delete">Опитвате се да изтриете тази дестинация. Желаете ли да продължите?</string>
-    <string name="direction_">Дестинация</string>
+    <string name="direction_">Посока:</string>
     <string name="label_create_line">Създаване на линия:</string>
     <string name="line_number">Номер на линията: (*)</string>
-    <string name="line_">Линия</string>
+    <string name="line_">Линия:</string>
     <string name="label_edit_line">Промяна на линия:</string>
     <string name="line_exists">Опитвате се да създадете съществуваща линия!</string>
     <string name="reset_data">Нулиране  с фабричните настройки</string>
@@ -82,4 +82,10 @@
     <string name="file_upload_error_message">Възникна грешка при записването на файла!</string>
     <string name="select_audio_line_text">Посочете аудио за гласово оповестяване на линията:</string>
     <string name="action_edit">Промяна</string>
+    <string name="system_announcements">Системни анонси</string>
+    <string name="none">Няма</string>
+    <string name="file_line">file_line</string>
+    <string name="file_direction">file_direction</string>
+    <string name="file_next_stop">file_next_stop</string>
+    <string name="file_stop">file_stop</string>
 </resources>

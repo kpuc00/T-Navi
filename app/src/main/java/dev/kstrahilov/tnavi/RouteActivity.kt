@@ -21,8 +21,12 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.google.android.gms.location.*
 import java.io.FileNotFoundException
+import java.util.*
+import kotlin.concurrent.schedule
 
 class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
+    private lateinit var logoLoadingTimer: TimerTask
+    private lateinit var initializeAppTimer: TimerTask
     private lateinit var locationRequest: LocationRequest
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var gpsStatus: ImageView
@@ -61,6 +65,8 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
         alert.setPositiveButton(application.getString(R.string.yes)) { _, _ ->
             stopGPSUpdates()
             mediaPlayer.release()
+            logoLoadingTimer.cancel()
+            initializeAppTimer.cancel()
             super.onBackPressed()
         }
         alert.setNegativeButton(application.getString(R.string.no)) { _, _ -> }
@@ -92,11 +98,19 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
 
         loadingScreen = findViewById(R.id.loading_screen)
         logoLoading = findViewById(R.id.logo_loading)
-        logoLoading.postDelayed({ logoLoading.visibility = View.VISIBLE }, 2000)
-        loadingScreen.postDelayed({
-            loadingScreen.visibility = View.GONE
-            initializeApp()
-        }, 10000)
+
+        logoLoadingTimer = Timer().schedule(2000) {
+            this@RouteActivity.runOnUiThread {
+                logoLoading.visibility = View.VISIBLE
+            }
+
+        }
+        initializeAppTimer = Timer().schedule(10000) {
+            this@RouteActivity.runOnUiThread {
+                loadingScreen.visibility = View.GONE
+                initializeApp()
+            }
+        }
     }
 
     private fun initializeApp() {
@@ -122,18 +136,18 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
         loadedRoute = ArrayList(route)
         populateListView(loadedRoute)
 
-        announce("246.mp3")
+        announce("line.mp3")
         mediaPlayer.setOnCompletionListener {
             if (lineAnnouncement != "none") {
                 announce(lineAnnouncement)
                 mediaPlayer.setOnCompletionListener {
-                    announce("251.mp3")
+                    announce("direction.mp3")
                     mediaPlayer.setOnCompletionListener {
                         announce(directionAnnouncement)
                     }
                 }
             } else {
-                announce("251.mp3")
+                announce("direction.mp3")
                 mediaPlayer.setOnCompletionListener {
                     announce(directionAnnouncement)
                 }
@@ -262,7 +276,7 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
                                     populateListView(loadedRoute)
                                     updateStopInfoRow(nextStop)
                                     rowDateTimeAnim.startNow()
-                                    announce("252.mp3")
+                                    announce("next.mp3")
                                     mediaPlayer.setOnCompletionListener {
                                         if (nextStop.announcementFileName != "none") {
                                             announce(nextStop.announcementFileName)
@@ -286,7 +300,7 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
                                     }
                                     updateStopInfoRow(stop)
                                     rowDateTimeAnim.startNow()
-                                    announce("253.mp3")
+                                    announce("stop.mp3")
                                     mediaPlayer.setOnCompletionListener {
                                         announce(stop.announcementFileName)
                                     }

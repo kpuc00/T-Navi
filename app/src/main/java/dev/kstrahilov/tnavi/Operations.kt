@@ -25,6 +25,7 @@ class Operations {
         private const val AUDIO_PATH = "${STORAGE_PATH}/audio"
         private const val STOPS_FILE_NAME = "stops.json"
         private const val LINES_FILE_NAME = "lines.json"
+        private const val SYSTEM_ANNOUNCEMENTS_FILE_NAME = "system_announcements.json"
         private const val EXPORTED_FILE_EXTENSION = ".tnav"
     }
 
@@ -114,7 +115,7 @@ class Operations {
     }
 
     private fun importAudioFileToInternalStorage(
-        applicationContext: Context, uri: Uri?, objectId: UUID
+        applicationContext: Context, uri: Uri?, objectId: UUID?, systemTitle: String?
     ): String {
         if (uri != null) {
             try {
@@ -124,8 +125,13 @@ class Operations {
                     val directory = File("$path/$AUDIO_PATH")
                     directory.mkdir()
                     val subStr = objectId.toString().substringBefore("-")
-                    val fileName = "${subStr}_${getFileNameFromUri(applicationContext, uri)}"
-                    val file = File(directory.path, fileName!!)
+                    var fileName = "${getFileNameFromUri(applicationContext, uri)}"
+                    fileName = if (systemTitle != null) {
+                        "${systemTitle}." + fileName.substringAfterLast(".", "mp3")
+                    } else {
+                        "${subStr}_" + fileName
+                    }
+                    val file = File(directory.path, fileName)
                     inputStream.use { input ->
                         file.outputStream().use { output ->
                             input.copyTo(output)
@@ -198,9 +204,7 @@ class Operations {
                 if (stops[0].announcementFileName != selectedAudioFileName) {
                     deleteOldAudioFile(applicationContext, stops[0].announcementFileName)
                     val finalFileName = importAudioFileToInternalStorage(
-                        applicationContext,
-                        selectedFile,
-                        stops[0].id
+                        applicationContext, selectedFile, stops[0].id, null
                     )
                     if (finalFileName != "error") {
                         stops[0].announcementFileName = finalFileName
@@ -342,9 +346,7 @@ class Operations {
                     if (newDirection.announcementFileName != selectedAudioFileName) {
                         deleteOldAudioFile(applicationContext, newDirection.announcementFileName)
                         val finalFileName = importAudioFileToInternalStorage(
-                            applicationContext,
-                            selectedFile,
-                            newDirection.id
+                            applicationContext, selectedFile, newDirection.id, null
                         )
                         if (finalFileName != "error") {
                             newDirection.announcementFileName = finalFileName
@@ -475,10 +477,7 @@ class Operations {
     }
 
     fun updateLine(
-        applicationContext: Context,
-        line: Line,
-        selectedFile: Uri?,
-        selectedAudioFileName: String?
+        applicationContext: Context, line: Line, selectedFile: Uri?, selectedAudioFileName: String?
     ): Boolean {
         val path: String = applicationContext.filesDir.toString()
         val directory = File("$path/$STORAGE_PATH")
@@ -513,9 +512,7 @@ class Operations {
                 if (line.announcementFileName != selectedAudioFileName) {
                     deleteOldAudioFile(applicationContext, line.announcementFileName)
                     val finalFileName = importAudioFileToInternalStorage(
-                        applicationContext,
-                        selectedFile,
-                        line.id
+                        applicationContext, selectedFile, line.id, null
                     )
                     if (finalFileName != "error") {
                         line.announcementFileName = finalFileName
@@ -673,7 +670,7 @@ class Operations {
             externalFile.writeText(json, Charsets.UTF_8)
             Toast.makeText(
                 applicationContext,
-                application.getString(R.string.data_exported),
+                application.getString(R.string.data_exported) + application.getString(R.string.app_name),
                 Toast.LENGTH_SHORT
             ).show()
             return true
@@ -698,5 +695,53 @@ class Operations {
             }
         }
         return fileName
+    }
+
+    fun storeSystemAnnouncement(applicationContext: Context, title: String, uri: Uri?): String {
+        val path: String = applicationContext.filesDir.toString()
+        val directory = File("$path/$STORAGE_PATH")
+        directory.mkdir()
+        val fileName = "/$SYSTEM_ANNOUNCEMENTS_FILE_NAME"
+        val file = File(directory.path, fileName)
+        val announcements: ArrayList<Announcement> = ArrayList()
+        var finalFileName = ""
+        try {
+            if (file.exists()) {
+                val readJson = file.readText(Charsets.UTF_8)
+                val announcementListType: Type =
+                    object : TypeToken<ArrayList<Announcement?>?>() {}.type
+                announcements.addAll(gson.fromJson(readJson, announcementListType))
+                val currentAnnouncement: Announcement? = announcements.find { it.title == title }
+                if (currentAnnouncement != null) {
+                    announcements.remove(currentAnnouncement)
+                    finalFileName =
+                        importAudioFileToInternalStorage(applicationContext, uri, null, title)
+                    currentAnnouncement.announcementFileName = finalFileName
+                    announcements.add(currentAnnouncement)
+                } else {
+                    finalFileName =
+                        importAudioFileToInternalStorage(applicationContext, uri, null, title)
+                    announcements.add(
+                        Announcement(
+                            title, finalFileName
+                        )
+                    )
+                }
+            } else {
+                finalFileName =
+                    importAudioFileToInternalStorage(applicationContext, uri, null, title)
+                announcements.add(
+                    Announcement(
+                        title, finalFileName
+                    )
+                )
+
+            }
+            val jsonString = gson.toJson(announcements)
+            file.writeText(jsonString, Charsets.UTF_8)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return finalFileName
     }
 }

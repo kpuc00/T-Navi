@@ -26,7 +26,14 @@ class SettingsActivity : AppCompatActivity(), OnItemClickListener {
         title = application.getString(R.string.settings)
 
         lvSettings = findViewById(R.id.lv_settings)
-        settings = arrayOf("stopManager", "lineManager", "exportData", "importData", "resetData")
+        settings = arrayOf(
+            "stopManager",
+            "lineManager",
+            "systemAnnouncements",
+            "exportData",
+            "importData",
+            "resetData"
+        )
         settingsListAdapter = SettingsListAdapter(applicationContext, settings)
 
         lvSettings.adapter = settingsListAdapter
@@ -42,6 +49,10 @@ class SettingsActivity : AppCompatActivity(), OnItemClickListener {
             "lineManager" -> {
                 val intent = Intent(this, ChooseLineActivity::class.java)
                 intent.putExtra("manager", "manager")
+                startActivity(intent)
+            }
+            "systemAnnouncements" -> {
+                val intent = Intent(this, EditSystemAnnouncementsActivity::class.java)
                 startActivity(intent)
             }
             "exportData" -> {

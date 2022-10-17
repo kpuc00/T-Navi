@@ -52,7 +52,7 @@
                 android:id="@+id/tv_direction"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="3dp"
+                android:layout_marginVertical="3dp"
                 android:ellipsize="marquee"
                 android:fontFamily="@font/arialbd"
                 android:includeFontPadding="false"
@@ -61,7 +61,7 @@
                 android:singleLine="true"
                 android:text="@string/template_direction"
                 android:textColor="@color/white"
-                android:textSize="60sp"
+                android:textSize="57sp"
                 tools:layout_editor_absoluteX="11dp" />
         </FrameLayout>
     </LinearLayout>
