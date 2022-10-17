@@ -17,6 +17,7 @@ class EditSystemAnnouncementsActivity : AppCompatActivity() {
     private lateinit var tvFileNextStop: TextView
     private lateinit var btnFileStop: Button
     private lateinit var tvFileStop: TextView
+    private lateinit var announcements: ArrayList<Announcement>
     private var selectedUpload = ""
     private var operations = Operations()
 
@@ -33,6 +34,24 @@ class EditSystemAnnouncementsActivity : AppCompatActivity() {
         tvFileNextStop = findViewById(R.id.tv_file_next_stop)
         btnFileStop = findViewById(R.id.btn_file_stop)
         tvFileStop = findViewById(R.id.tv_file_stop)
+
+        announcements = operations.loadSystemAnnouncementsFromInternalStorage(applicationContext)
+        announcements.forEach {
+            when (it.title) {
+                "line" -> {
+                    tvFileLine.text = it.announcementFileName
+                }
+                "direction" -> {
+                    tvFileDirection.text = it.announcementFileName
+                }
+                "next_stop" -> {
+                    tvFileNextStop.text = it.announcementFileName
+                }
+                "stop" -> {
+                    tvFileStop.text = it.announcementFileName
+                }
+            }
+        }
 
         btnFileLine.setOnClickListener {
             selectedUpload = "line"

@@ -95,6 +95,22 @@ class Operations {
         return stops.map { it.id } as ArrayList<UUID>
     }
 
+    fun loadSystemAnnouncementsFromInternalStorage(applicationContext: Context): ArrayList<Announcement> {
+        val path: String = applicationContext.filesDir.toString()
+        val directory = File("$path/$STORAGE_PATH")
+        directory.mkdir()
+        val fileName = "/$SYSTEM_ANNOUNCEMENTS_FILE_NAME"
+        val file = File(directory.path, fileName)
+
+        return if (file.exists()) {
+            val readJson = file.readText(Charsets.UTF_8)
+            val announcementListType: Type = object : TypeToken<ArrayList<Announcement?>?>() {}.type
+            gson.fromJson(readJson, announcementListType)
+        } else {
+            ArrayList()
+        }
+    }
+
     fun removeDeletedStopIdsFromRoutes(applicationContext: Context) {
         val stops = loadStopsFromInternalStorage(applicationContext)
         val lines = loadLinesFromInternalStorage(applicationContext)
@@ -739,6 +755,11 @@ class Operations {
             }
             val jsonString = gson.toJson(announcements)
             file.writeText(jsonString, Charsets.UTF_8)
+            Toast.makeText(
+                applicationContext,
+                applicationContext.getString(R.string.file_upload_uploaded),
+                Toast.LENGTH_SHORT
+            ).show()
         } catch (e: Exception) {
             e.printStackTrace()
         }
