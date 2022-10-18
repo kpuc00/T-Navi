@@ -5,9 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
-import android.media.AudioAttributes
-import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AlphaAnimation
@@ -20,7 +17,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.google.android.gms.location.*
-import java.io.FileNotFoundException
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -48,7 +44,6 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
     private lateinit var rowDateTimeAnim: Animation
     private lateinit var tvNextStopInfoRow: TextView
     private lateinit var tvStopTitle: TextView
-    private var mediaPlayer: MediaPlayer = MediaPlayer()
     private val operations = Operations()
 
     companion object {
@@ -64,7 +59,7 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
         alert.setMessage(application.getString(R.string.exit_route_question))
         alert.setPositiveButton(application.getString(R.string.yes)) { _, _ ->
             stopGPSUpdates()
-            mediaPlayer.release()
+            operations.mediaPlayer.release()
             logoLoadingTimer.cancel()
             initializeAppTimer.cancel()
             super.onBackPressed()
@@ -136,20 +131,20 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
         loadedRoute = ArrayList(route)
         populateListView(loadedRoute)
 
-        announce("line.mp3")
-        mediaPlayer.setOnCompletionListener {
+        operations.announce(applicationContext, "line.mp3")
+        operations.mediaPlayer.setOnCompletionListener {
             if (lineAnnouncement != "none") {
-                announce(lineAnnouncement)
-                mediaPlayer.setOnCompletionListener {
-                    announce("direction.mp3")
-                    mediaPlayer.setOnCompletionListener {
-                        announce(directionAnnouncement)
+                operations.announce(applicationContext, lineAnnouncement)
+                operations.mediaPlayer.setOnCompletionListener {
+                    operations.announce(applicationContext, "direction.mp3")
+                    operations.mediaPlayer.setOnCompletionListener {
+                        operations.announce(applicationContext, directionAnnouncement)
                     }
                 }
             } else {
-                announce("direction.mp3")
-                mediaPlayer.setOnCompletionListener {
-                    announce(directionAnnouncement)
+                operations.announce(applicationContext, "direction.mp3")
+                operations.mediaPlayer.setOnCompletionListener {
+                    operations.announce(applicationContext, directionAnnouncement)
                 }
             }
         }
@@ -210,30 +205,6 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
     }
 
-    private fun announce(fileName: String) {
-        if (fileName != "none") {
-            try {
-                mediaPlayer = MediaPlayer().apply {
-                    setAudioAttributes(
-                        AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                            .setUsage(AudioAttributes.USAGE_MEDIA).build()
-                    )
-                    setDataSource(
-                        applicationContext,
-                        Uri.parse("${applicationContext.filesDir}/storage/audio/$fileName")
-                    )
-                    prepare()
-                    start()
-                }
-            } catch (e: Exception) {
-                when (e) {
-                    is java.lang.NullPointerException, is FileNotFoundException -> {}
-                    else -> throw e
-                }
-            }
-        }
-    }
-
     private fun startGPSUpdates() {
         if (checkPermissions()) {
             if (isLocationEnabled()) {
@@ -269,23 +240,26 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
                                 )
 
                                 //Announce next stop
-                                if (loadedRoute.size > 1 && distance[0] > DESTINATION_RADIUS && stop.isCurrent && !mediaPlayer.isPlaying) {
+                                if (loadedRoute.size > 1 && distance[0] > DESTINATION_RADIUS && stop.isCurrent && !operations.mediaPlayer.isPlaying) {
                                     stop.isCurrent = false
                                     val nextStop = route[index + 1]
                                     loadedRoute.removeAt(0)
                                     populateListView(loadedRoute)
                                     updateStopInfoRow(nextStop)
                                     rowDateTimeAnim.startNow()
-                                    announce("next.mp3")
-                                    mediaPlayer.setOnCompletionListener {
+                                    operations.announce(applicationContext, "next_stop.mp3")
+                                    operations.mediaPlayer.setOnCompletionListener {
                                         if (nextStop.announcementFileName != "none") {
-                                            announce(nextStop.announcementFileName)
+                                            operations.announce(
+                                                applicationContext,
+                                                nextStop.announcementFileName
+                                            )
                                         }
                                     }
                                 }
 
                                 //Announce current stop
-                                if (distance[0] < DESTINATION_RADIUS && !stop.isAnnounced && !mediaPlayer.isPlaying) {
+                                if (distance[0] < DESTINATION_RADIUS && !stop.isAnnounced && !operations.mediaPlayer.isPlaying) {
                                     loadedRoute[0].isCurrent = false
                                     if (loadedRoute.size > 1) {
                                         loadedRoute[1].isNext = false
@@ -300,9 +274,12 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
                                     }
                                     updateStopInfoRow(stop)
                                     rowDateTimeAnim.startNow()
-                                    announce("stop.mp3")
-                                    mediaPlayer.setOnCompletionListener {
-                                        announce(stop.announcementFileName)
+                                    operations.announce(applicationContext, "stop.mp3")
+                                    operations.mediaPlayer.setOnCompletionListener {
+                                        operations.announce(
+                                            applicationContext,
+                                            stop.announcementFileName
+                                        )
                                     }
                                     stop.isAnnounced = true
                                     loadedRoute[0].isAnnounced = true
@@ -338,8 +315,8 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
 
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         val stop: Stop = loadedRoute[position]
-        if (!mediaPlayer.isPlaying) {
-            announce(stop.announcementFileName)
+        if (!operations.mediaPlayer.isPlaying) {
+            operations.announce(applicationContext, stop.announcementFileName)
         }
     }
 

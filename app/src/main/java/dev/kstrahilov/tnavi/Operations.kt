@@ -2,6 +2,8 @@ package dev.kstrahilov.tnavi
 
 import android.app.Application
 import android.content.Context
+import android.media.AudioAttributes
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Environment
 import android.provider.OpenableColumns
@@ -18,6 +20,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 class Operations {
+    var mediaPlayer: MediaPlayer = MediaPlayer()
     var gson = Gson()
 
     companion object {
@@ -764,5 +767,29 @@ class Operations {
             e.printStackTrace()
         }
         return finalFileName
+    }
+
+    fun announce(applicationContext: Context, fileName: String) {
+        if (fileName != "none") {
+            try {
+                mediaPlayer = MediaPlayer().apply {
+                    setAudioAttributes(
+                        AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .setUsage(AudioAttributes.USAGE_MEDIA).build()
+                    )
+                    setDataSource(
+                        applicationContext,
+                        Uri.parse("${applicationContext.filesDir}/storage/audio/$fileName")
+                    )
+                    prepare()
+                    start()
+                }
+            } catch (e: Exception) {
+                when (e) {
+                    is java.lang.NullPointerException, is FileNotFoundException -> {}
+                    else -> throw e
+                }
+            }
+        }
     }
 }
