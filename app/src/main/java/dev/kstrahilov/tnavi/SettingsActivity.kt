@@ -56,37 +56,44 @@ class SettingsActivity : AppCompatActivity(), OnItemClickListener {
                 startActivity(intent)
             }
             "exportData" -> {
-                exportData()
+                operations.exportDataToExternalStorage(
+                    applicationContext
+                )
             }
             "importData" -> {
-                val alert = AlertDialog.Builder(this)
-                alert.setTitle(application.getString(R.string.import_data))
-                alert.setIcon(
-                    AppCompatResources.getDrawable(
-                        applicationContext,
-                        R.drawable.ic_baseline_file_upload_blue_24
-                    )
-                )
-                alert.setMessage(application.getString(R.string.import_data_message))
-                alert.setPositiveButton(application.getString(R.string.yes)) { _, _ ->
-                    openFilePicker()
-                }
-                alert.setNegativeButton(application.getString(R.string.no)) { _, _ -> }
-                val alertDialog = alert.create()
-                alertDialog.show()
+                Toast.makeText(
+                    applicationContext,
+                    application.getString(R.string.coming_soon),
+                    Toast.LENGTH_SHORT
+                ).show()
+//                val alert = AlertDialog.Builder(this)
+//                alert.setTitle(application.getString(R.string.import_data))
+//                alert.setIcon(
+//                    AppCompatResources.getDrawable(
+//                        applicationContext, R.drawable.ic_baseline_file_upload_blue_24
+//                    )
+//                )
+//                alert.setMessage(application.getString(R.string.import_data_message))
+//                alert.setPositiveButton(application.getString(R.string.yes)) { _, _ ->
+//                    openFilePicker()
+//                }
+//                alert.setNegativeButton(application.getString(R.string.no)) { _, _ -> }
+//                val alertDialog = alert.create()
+//                alertDialog.show()
             }
             "resetData" -> {
                 val alert = AlertDialog.Builder(this)
                 alert.setTitle(application.getString(R.string.reset_data))
                 alert.setIcon(
                     AppCompatResources.getDrawable(
-                        applicationContext,
-                        R.drawable.ic_baseline_refresh_24
+                        applicationContext, R.drawable.ic_baseline_refresh_24
                     )
                 )
                 alert.setMessage(application.getString(R.string.reset_data_message))
                 alert.setPositiveButton(application.getString(R.string.yes)) { _, _ ->
-                    //
+                    if (operations.resetAppData(applicationContext)) {
+                        finish()
+                    }
                 }
                 alert.setNegativeButton(application.getString(R.string.no)) { _, _ -> }
                 val alertDialog = alert.create()
@@ -100,17 +107,6 @@ class SettingsActivity : AppCompatActivity(), OnItemClickListener {
                 ).show()
             }
         }
-    }
-
-    private fun exportData() {
-        val stopsData = operations.loadStopsFromInternalStorage(applicationContext)
-        val linesData = operations.loadLinesFromInternalStorage(applicationContext)
-
-        operations.exportDataToExternalStorage(
-            applicationContext, application, operations.gson.toJson(
-                mapOf("stopsData" to stopsData, "linesData" to linesData)
-            )
-        )
     }
 
     private fun openFilePicker() {

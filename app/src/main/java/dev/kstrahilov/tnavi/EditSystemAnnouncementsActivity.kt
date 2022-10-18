@@ -17,6 +17,10 @@ class EditSystemAnnouncementsActivity : AppCompatActivity() {
     private lateinit var tvFileNextStop: TextView
     private lateinit var btnFileStop: Button
     private lateinit var tvFileStop: TextView
+    private lateinit var btnPlayFileLine: Button
+    private lateinit var btnPlayFileDirection: Button
+    private lateinit var btnPlayFileNextStop: Button
+    private lateinit var btnPlayFileStop: Button
     private lateinit var announcements: ArrayList<Announcement>
     private var selectedUpload = ""
     private var operations = Operations()
@@ -34,6 +38,10 @@ class EditSystemAnnouncementsActivity : AppCompatActivity() {
         tvFileNextStop = findViewById(R.id.tv_file_next_stop)
         btnFileStop = findViewById(R.id.btn_file_stop)
         tvFileStop = findViewById(R.id.tv_file_stop)
+        btnPlayFileLine = findViewById(R.id.btn_play_file_line)
+        btnPlayFileDirection = findViewById(R.id.btn_play_file_direction)
+        btnPlayFileNextStop = findViewById(R.id.btn_play_file_next_top)
+        btnPlayFileStop = findViewById(R.id.btn_play_file_stop)
 
         announcements = operations.loadSystemAnnouncementsFromInternalStorage(applicationContext)
         announcements.forEach {
@@ -50,6 +58,32 @@ class EditSystemAnnouncementsActivity : AppCompatActivity() {
                 "stop" -> {
                     tvFileStop.text = it.announcementFileName
                 }
+            }
+        }
+
+        btnPlayFileLine.setOnClickListener {
+            val announcement = announcements.find { it.title == "line" }
+            if (!operations.mediaPlayer.isPlaying && announcement != null) {
+                operations.announce(applicationContext, announcement.announcementFileName)
+            }
+        }
+        btnPlayFileDirection.setOnClickListener {
+            val announcement = announcements.find { it.title == "direction" }
+            if (!operations.mediaPlayer.isPlaying && announcement != null) {
+                operations.announce(applicationContext, announcement.announcementFileName)
+            }
+
+        }
+        btnPlayFileNextStop.setOnClickListener {
+            val announcement = announcements.find { it.title == "next_stop" }
+            if (!operations.mediaPlayer.isPlaying && announcement != null) {
+                operations.announce(applicationContext, announcement.announcementFileName)
+            }
+        }
+        btnPlayFileStop.setOnClickListener {
+            val announcement = announcements.find { it.title == "stop" }
+            if (!operations.mediaPlayer.isPlaying && announcement != null) {
+                operations.announce(applicationContext, announcement.announcementFileName)
             }
         }
 

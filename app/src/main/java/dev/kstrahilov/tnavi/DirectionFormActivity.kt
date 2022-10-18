@@ -24,6 +24,7 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
     private lateinit var btnPickStop: Button
     private lateinit var audioFileRow: LinearLayout
     private lateinit var tvSelectedAudioFile: TextView
+    private lateinit var tvEmptyListStops: TextView
     private var selectedAudioFileName: String? = null
     private var selectedFile: Uri? = null
     private var route: ArrayList<Stop> = ArrayList()
@@ -50,6 +51,7 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
         audioFileRow = findViewById(R.id.audio_direction_file_row)
         tvSelectedAudioFile = findViewById(R.id.tv_selected_audio_direction_file)
         tvSelectedAudioFile.isSelected = true
+        tvEmptyListStops = findViewById(R.id.tv_empty_list_stops)
 
         if (direction != null) {
             title = application.getString(R.string.label_edit_direction)
@@ -93,12 +95,19 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, route)
         lvDirectionStops.adapter = adapter
         lvDirectionStops.onItemClickListener = this
+
+        tvEmptyListStops.visibility = if (route.size < 1) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
     }
 
     private fun saveDirection() {
         val newDirection: Direction
         if (direction != null && etDirectionTitle.text.toString().trim() != "") {
-            direction!!.routeStopIds = operations.convertListOfStopsToListOfStopIds(route)
+            direction!!.routeStopIds.clear()
+            direction!!.routeStopIds.addAll(operations.convertListOfStopsToListOfStopIds(route))
             newDirection = direction!!
         } else {
             if (etDirectionTitle.text.toString().trim() == "") {
@@ -117,12 +126,7 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
 
         }
         operations.saveDirection(
-            applicationContext,
-            lineId,
-            direction,
-            newDirection,
-            selectedFile,
-            selectedAudioFileName
+            applicationContext, lineId, direction, newDirection, selectedFile, selectedAudioFileName
         )
         finish()
     }
@@ -135,6 +139,11 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
         builder.setItems(stopsTitles) { _, position ->
             route.add(stopsList.find { it.title == stopsList[position].title }!!)
             lvDirectionStops.invalidateViews()
+            tvEmptyListStops.visibility = if (route.size < 1) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
         }
         val dialog = builder.create()
         dialog.show()
@@ -180,6 +189,11 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
         alert.setPositiveButton(application.getString(R.string.yes)) { _, _ ->
             route.remove(stop)
             lvDirectionStops.invalidateViews()
+            tvEmptyListStops.visibility = if (route.size < 1) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
         }
         alert.setNegativeButton(application.getString(R.string.no)) { _, _ -> }
         val alertDialog = alert.create()

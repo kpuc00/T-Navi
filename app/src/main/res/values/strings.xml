@@ -39,7 +39,7 @@
     <string name="stops_manager">Мениджър на спирки</string>
     <string name="lines_manager">Мениджър на линии</string>
     <string name="error">Грешка</string>
-    <string name="error_message">Възникна грешка. Моля, опитайте по-късно!</string>
+    <string name="error_message">Възникна грешка.</string>
     <string name="action_create">Създаване</string>
     <string name="was_created">беше създадена</string>
     <string name="was_modified">беше променена</string>
@@ -89,4 +89,6 @@
     <string name="file_next_stop">file_next_stop</string>
     <string name="file_stop">file_stop</string>
     <string name="file_upload_uploaded">Файлът е записан успешно!</string>
+    <string name="data_was_reset">Системата е върната до настройките по подразбиране.</string>
+    <string name="coming_soon">Очаквайте скоро!</string>
 </resources>

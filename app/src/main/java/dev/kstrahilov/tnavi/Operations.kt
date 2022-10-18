@@ -1,6 +1,5 @@
 package dev.kstrahilov.tnavi
 
-import android.app.Application
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
@@ -349,16 +348,16 @@ class Operations {
                 val readJson = file.readText(Charsets.UTF_8)
                 val linesListType: Type = object : TypeToken<ArrayList<Line?>?>() {}.type
                 val readLines: ArrayList<Line> = gson.fromJson(readJson, linesListType)
-                val currentLine: Line = readLines.filter { it.id.toString() == lineId }[0]
+                val currentLine: Line = readLines.find { it.id.toString() == lineId }!!
 
                 //Updating the line with new a direction
-                //First remove it and add it again when updated
+                //First remove the line and add it again when updated
                 readLines.remove(currentLine)
                 //Remove old direction to keep only the new one
                 if (direction != null) {
-                    val readDirection = currentLine.directions!!.filter {
+                    val readDirection = currentLine.directions!!.find {
                         it.id.toString() == direction.id.toString()
-                    }[0]
+                    }
                     currentLine.directions!!.remove(readDirection)
                 }
                 if (selectedFile != null && selectedAudioFileName != null) {
@@ -508,23 +507,22 @@ class Operations {
         try {
             if (file.exists()) {
                 val readJson = file.readText(Charsets.UTF_8)
-                val stopListType: Type = object : TypeToken<ArrayList<Line?>?>() {}.type
-                val readLines: ArrayList<Line> = gson.fromJson(readJson, stopListType)
+                val lineListType: Type = object : TypeToken<ArrayList<Line?>?>() {}.type
+                val readLines: ArrayList<Line> = gson.fromJson(readJson, lineListType)
 
                 //Remove old line to keep only the new one
-                val readLine = readLines.filter {
+                val readLine = readLines.find {
                     it.id == line.id
-                }[0]
+                }!!
                 readLines.remove(readLine)
                 lines.addAll(readLines)
             }
             if (lines.any { it.number == line.number }) {
-                val alert = AlertDialog.Builder(applicationContext)
-                alert.setTitle(applicationContext.getString(R.string.error))
-                alert.setMessage(applicationContext.getString(R.string.line_exists))
-                alert.setNegativeButton(applicationContext.getString(R.string.ok)) { _, _ -> }
-                val alertDialog = alert.create()
-                alertDialog.show()
+                Toast.makeText(
+                    applicationContext,
+                    applicationContext.getString(R.string.line_exists),
+                    Toast.LENGTH_LONG
+                ).show()
                 return false
             }
             if (selectedFile != null && selectedAudioFileName != null) {
@@ -535,10 +533,10 @@ class Operations {
                     )
                     if (finalFileName != "error") {
                         line.announcementFileName = finalFileName
-                        lines.add(line)
                     }
                 }
             }
+            lines.add(line)
             lines.sortBy { it.number.lowercase() }
             val jsonString = gson.toJson(lines)
             file.writeText(jsonString, Charsets.UTF_8)
@@ -653,33 +651,33 @@ class Operations {
         }
     }
 
-//    fun saveStopsToInternalStorageFromFile(applicationContext: Context, file: File): Boolean {
-//        val stopsData: String?
+//    fun importDataFromExternalStorage(applicationContext: Context, uri: Uri?) {
 //        val path: String = applicationContext.filesDir.toString()
 //        val directory = File("$path/$STORAGE_PATH")
 //        directory.mkdir()
-//        val internalFile = File(directory.path, "/$STOPS_FILE_NAME")
-//
-//        stopsData = file.readText(Charsets.UTF_8)
-//        val stopListType: Type = object : TypeToken<ArrayList<Stop?>?>() {}.type
-//        val readStops: ArrayList<Stop> = gson.fromJson(stopsData, stopListType)
-//        val jsonString: String = gson.toJson(readStops)
-//        internalFile.writeText(jsonString, Charsets.UTF_8)
-//        return true
 //    }
 
-    fun exportDataToExternalStorage(
-        applicationContext: Context, application: Application, json: String
-    ): Boolean {
+    fun exportDataToExternalStorage(applicationContext: Context): Boolean {
+        val stopsData = loadStopsFromInternalStorage(applicationContext)
+        val linesData = loadLinesFromInternalStorage(applicationContext)
+        val announcementsData = loadSystemAnnouncementsFromInternalStorage(applicationContext)
+        val json = gson.toJson(
+            mapOf(
+                "stopsData" to stopsData,
+                "linesData" to linesData,
+                "announcementsData" to announcementsData
+            )
+        )
+
         val externalPath: String =
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
                 .toString()
         val dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
         val externalFileName =
-            application.getString(R.string.app_name) + "/data_" + LocalDateTime.now()
+            applicationContext.getString(R.string.app_name) + "/data_" + LocalDateTime.now()
                 .format(dateFormatter) + EXPORTED_FILE_EXTENSION
         val externalFile = File(externalPath, externalFileName)
-        val externalDirectory = File(application.getString(R.string.app_name))
+        val externalDirectory = File(applicationContext.getString(R.string.app_name))
 
         try {
             if (!externalDirectory.exists()) {
@@ -689,7 +687,9 @@ class Operations {
             externalFile.writeText(json, Charsets.UTF_8)
             Toast.makeText(
                 applicationContext,
-                application.getString(R.string.data_exported) + application.getString(R.string.app_name),
+                applicationContext.getString(R.string.data_exported) + applicationContext.getString(
+                    R.string.app_name
+                ),
                 Toast.LENGTH_SHORT
             ).show()
             return true
@@ -790,6 +790,38 @@ class Operations {
                     else -> throw e
                 }
             }
+        }
+    }
+
+    fun resetAppData(applicationContext: Context): Boolean {
+        val path: String = applicationContext.filesDir.toString()
+        val directory = File("$path/$STORAGE_PATH")
+        directory.mkdir()
+        try {
+            return if (directory.deleteRecursively()) {
+                Toast.makeText(
+                    applicationContext,
+                    applicationContext.getString(R.string.data_was_reset),
+                    Toast.LENGTH_SHORT
+                ).show()
+                true
+            } else {
+                Toast.makeText(
+                    applicationContext,
+                    applicationContext.getString(R.string.error_message),
+                    Toast.LENGTH_LONG
+                ).show()
+                false
+            }
+
+        } catch (e: Exception) {
+            Toast.makeText(
+                applicationContext,
+                applicationContext.getString(R.string.error_message),
+                Toast.LENGTH_LONG
+            ).show()
+            e.printStackTrace()
+            return false
         }
     }
 }
