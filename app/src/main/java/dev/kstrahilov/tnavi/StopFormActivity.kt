@@ -1,11 +1,14 @@
 package dev.kstrahilov.tnavi
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Resources.NotFoundException
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -17,6 +20,7 @@ import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -28,6 +32,7 @@ class StopFormActivity : AppCompatActivity() {
     private lateinit var stopIdRow: LinearLayout
     private lateinit var tvStopId: TextView
     private lateinit var etStopTitle: EditText
+    private lateinit var etDisplayTitle: EditText
     private lateinit var btnChooseAudio: Button
     private lateinit var selectedLocation: LatLng
     private var stop: Stop? = null
@@ -36,6 +41,10 @@ class StopFormActivity : AppCompatActivity() {
     private var selectedFile: Uri? = null
     private lateinit var audioFileRow: LinearLayout
     private lateinit var tvSelectedAudioFile: TextView
+
+    companion object {
+        private const val PERMISSION_REQUEST_ACCESS_LOCATION = 100
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +57,7 @@ class StopFormActivity : AppCompatActivity() {
         }
 
         etStopTitle = findViewById(R.id.et_stop_title)
+        etDisplayTitle = findViewById(R.id.et_display_title)
         btnChooseAudio = findViewById(R.id.btn_choose_audio_stop)
 
         audioFileRow = findViewById(R.id.audio_stop_file_row)
@@ -79,6 +89,17 @@ class StopFormActivity : AppCompatActivity() {
                 }
 
             })
+            etDisplayTitle.setText(stop!!.displayTitle)
+            etDisplayTitle.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+                override fun afterTextChanged(p0: Editable?) {
+                    stop!!.displayTitle = etDisplayTitle.text.toString()
+                }
+
+            })
         } else {
             title = application.getString(R.string.label_create_stop)
         }
@@ -87,10 +108,23 @@ class StopFormActivity : AppCompatActivity() {
             openFilePicker()
         }
 
+        if (checkPermissions()) {
+            if (isLocationEnabled()) {
+                loadMap()
+            } else {
+                Toast.makeText(
+                    this, application.getString(R.string.enable_location), Toast.LENGTH_LONG
+                ).show()
+            }
+        } else {
+            requestPermission()
+        }
+    }
+
+    private fun loadMap() {
         val mapFragment = supportFragmentManager.findFragmentById(
             R.id.map
         ) as? SupportMapFragment
-
         try {
             mapFragment?.getMapAsync { googleMap ->
                 googleMap.isMyLocationEnabled = true
@@ -99,9 +133,13 @@ class StopFormActivity : AppCompatActivity() {
                     googleMap.addMarker(
                         MarkerOptions().position(stop!!.location)
                             .icon(bitmapFromVector(applicationContext, R.drawable.stop))
-                            .anchor(0.5F, 0.5F)
+                            .anchor(0.5F, 0.5F).title(stop!!.displayTitle)
                     )
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(stop!!.location, 17F))
+                    googleMap.moveCamera(
+                        CameraUpdateFactory.newLatLngZoom(
+                            stop!!.location, 17F
+                        )
+                    )
                     addCircle(googleMap, stop!!.location)
                 }
 
@@ -111,7 +149,7 @@ class StopFormActivity : AppCompatActivity() {
                     googleMap.addMarker(
                         MarkerOptions().position(selectedLocation)
                             .icon(bitmapFromVector(applicationContext, R.drawable.stop))
-                            .anchor(0.5F, 0.5F)
+                            .anchor(0.5F, 0.5F).title(etDisplayTitle.text.toString().trim())
                     )
                     addCircle(googleMap, selectedLocation)
                     if (stop != null) {
@@ -127,7 +165,6 @@ class StopFormActivity : AppCompatActivity() {
             ).show()
             e.printStackTrace()
         }
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -164,10 +201,14 @@ class StopFormActivity : AppCompatActivity() {
 
     private fun saveStop() {
         val stops: ArrayList<Stop> = ArrayList()
-        if (stop != null && etStopTitle.text.toString() != "") {
+        if (stop != null && etStopTitle.text.toString()
+                .trim() != "" && etDisplayTitle.text.toString().trim() != ""
+        ) {
             stops.add(stop!!)
         } else {
-            if (!this::selectedLocation.isInitialized || etStopTitle.text.toString() == "") {
+            if (!this::selectedLocation.isInitialized || etStopTitle.text.toString()
+                    .trim() == "" || etDisplayTitle.text.toString().trim() === ""
+            ) {
                 val alert = AlertDialog.Builder(this)
                 alert.setTitle(application.getString(R.string.error))
                 alert.setMessage(application.getString(R.string.form_incomplete))
@@ -176,14 +217,16 @@ class StopFormActivity : AppCompatActivity() {
                 alertDialog.show()
                 return
             }
-            stops.add(Stop(title = etStopTitle.text.toString().trim(), location = selectedLocation))
+            stops.add(
+                Stop(
+                    title = etStopTitle.text.toString().trim(),
+                    displayTitle = etDisplayTitle.text.toString().trim(),
+                    location = selectedLocation
+                )
+            )
         }
         operations.saveStop(
-            applicationContext,
-            stop,
-            stops,
-            selectedFile,
-            selectedAudioFileName
+            applicationContext, stop, stops, selectedFile, selectedAudioFileName
         )
         finish()
 
@@ -233,4 +276,50 @@ class StopFormActivity : AppCompatActivity() {
                 return@registerForActivityResult
             }
         }
+
+    private fun isLocationEnabled(): Boolean {
+        val locationManager: LocationManager =
+            getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+            LocationManager.NETWORK_PROVIDER
+        )
+    }
+
+    private fun requestPermission() {
+        ActivityCompat.requestPermissions(
+            this, arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
+            ), PERMISSION_REQUEST_ACCESS_LOCATION
+        )
+    }
+
+    private fun checkPermissions(): Boolean {
+        if (ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            return true
+        }
+        return false
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == PERMISSION_REQUEST_ACCESS_LOCATION) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                loadMap()
+            } else {
+                Toast.makeText(
+                    applicationContext,
+                    application.getString(R.string.location_access_denied),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
 }

@@ -9,6 +9,7 @@ import java.util.*
 class Stop(
     val id: UUID = UUID.randomUUID(),
     var title: String,
+    var displayTitle: String,
     var location: LatLng = LatLng(0.0, 0.0),
     var announcementFileName: String = "none",
     var isCurrent: Boolean = false,

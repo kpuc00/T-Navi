@@ -185,11 +185,11 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
     private fun updateStopInfoRow(stop: Stop) {
         tvStopTitle.isSelected = true
         if (stop.isCurrent) {
-            tvStopTitle.text = stop.toString()
+            tvStopTitle.text = stop.displayTitle
             tvNextStopInfoRow.text = tvNextStopInfoRow.context.getText(R.string.stop_)
             tvStopTitle.setTextColor(tvStopTitle.context.getColor(R.color.red))
         } else {
-            tvStopTitle.text = stop.toString()
+            tvStopTitle.text = stop.displayTitle
             tvNextStopInfoRow.text = tvNextStopInfoRow.context.getText(R.string.next_stop_)
             tvStopTitle.setTextColor(tvStopTitle.context.getColor(R.color.green))
         }
@@ -220,7 +220,7 @@ class RouteActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
                 locationRequest = LocationRequest.create().apply {
                     interval = 1000 * UPDATE_DEFAULT_INTERVAL
                     fastestInterval = 1000 * FAST_UPDATE_INTERVAL
-                    priority = Priority.PRIORITY_BALANCED_POWER_ACCURACY
+                    priority = Priority.PRIORITY_HIGH_ACCURACY
                 }
 
                 locationCallback = object : LocationCallback() {

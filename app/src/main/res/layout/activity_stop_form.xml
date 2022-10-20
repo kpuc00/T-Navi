@@ -40,7 +40,18 @@
             android:autofillHints="stopTitle"
             android:ems="10"
             android:hint="@string/stop_title"
-            android:inputType="textPersonName"
+            android:inputType="textCapSentences"
+            android:minHeight="48dp"
+            android:textColorHint="@color/gray" />
+
+        <EditText
+            android:id="@+id/et_display_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="stopTitle"
+            android:ems="10"
+            android:hint="@string/display_title"
+            android:inputType="textCapSentences"
             android:minHeight="48dp"
             android:textColorHint="@color/gray" />
 

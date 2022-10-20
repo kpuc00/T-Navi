@@ -43,6 +43,26 @@ class EditSystemAnnouncementsActivity : AppCompatActivity() {
         btnPlayFileNextStop = findViewById(R.id.btn_play_file_next_top)
         btnPlayFileStop = findViewById(R.id.btn_play_file_stop)
 
+        btnFileLine.setOnClickListener {
+            selectedUpload = "line"
+            openFilePicker()
+        }
+        btnFileDirection.setOnClickListener {
+            selectedUpload = "direction"
+            openFilePicker()
+        }
+        btnFileNextStop.setOnClickListener {
+            selectedUpload = "next_stop"
+            openFilePicker()
+        }
+        btnFileStop.setOnClickListener {
+            selectedUpload = "stop"
+            openFilePicker()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
         announcements = operations.loadSystemAnnouncementsFromInternalStorage(applicationContext)
         announcements.forEach {
             when (it.title) {
@@ -85,23 +105,6 @@ class EditSystemAnnouncementsActivity : AppCompatActivity() {
             if (!operations.mediaPlayer.isPlaying && announcement != null) {
                 operations.announce(applicationContext, announcement.announcementFileName)
             }
-        }
-
-        btnFileLine.setOnClickListener {
-            selectedUpload = "line"
-            openFilePicker()
-        }
-        btnFileDirection.setOnClickListener {
-            selectedUpload = "direction"
-            openFilePicker()
-        }
-        btnFileNextStop.setOnClickListener {
-            selectedUpload = "next_stop"
-            openFilePicker()
-        }
-        btnFileStop.setOnClickListener {
-            selectedUpload = "stop"
-            openFilePicker()
         }
     }
 

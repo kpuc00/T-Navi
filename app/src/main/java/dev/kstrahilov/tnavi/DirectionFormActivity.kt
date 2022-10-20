@@ -77,13 +77,6 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
             title = application.getString(R.string.label_create_direction)
         }
 
-        btnChooseAudio.setOnClickListener {
-            openFilePicker()
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
         lvDirectionStops = findViewById(R.id.lv_direction_stops)
         if (direction != null) {
             route.addAll(
@@ -100,6 +93,10 @@ class DirectionFormActivity : AppCompatActivity(), OnItemClickListener {
             View.VISIBLE
         } else {
             View.GONE
+        }
+
+        btnChooseAudio.setOnClickListener {
+            openFilePicker()
         }
     }
 

@@ -27,7 +27,7 @@
     <string name="no">Не</string>
     <string name="cancel">Отказ</string>
     <string name="logo">logo</string>
-    <string name="location_access_denied">Маршрутът няма да се следи!</string>
+    <string name="location_access_denied">Достъпът до местоположението е отказан!</string>
     <string name="enable_location">Включете местоположението на устройството и рестартирайте пътуването!</string>
     <string name="stop_title">Име на спирката: *</string>
     <string name="select_audio_stop_text">Посочете аудио за гласово оповестяване на спирката:</string>
@@ -91,4 +91,5 @@
     <string name="file_upload_uploaded">Файлът е записан успешно!</string>
     <string name="data_was_reset">Системата е върната до настройките по подразбиране.</string>
     <string name="coming_soon">Очаквайте скоро!</string>
+    <string name="display_title">Екранно име: *</string>
 </resources>

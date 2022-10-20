@@ -36,7 +36,7 @@ class StopListAdapter(var context: Context, var arrayList: ArrayList<Stop>) : Ba
             ivStop.setImageResource(R.drawable.stop)
             tvTitle.setTextColor(tvTitle.context.getColor(R.color.black))
         }
-        tvTitle.text = stop.title
+        tvTitle.text = stop.displayTitle
 
         return view
     }
