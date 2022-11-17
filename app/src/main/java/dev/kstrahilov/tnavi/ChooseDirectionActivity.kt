@@ -39,7 +39,7 @@ class ChooseDirectionActivity : AppCompatActivity(), OnItemClickListener {
                     .find { it.id == line.id }!!
         } catch (_: java.lang.NullPointerException) {
         }
-        title = application.getString(R.string.choose_direction) + " " + storedLine.toString()
+        title = "${application.getString(R.string.choose_direction)} $storedLine"
         lvDirections = findViewById(R.id.lv_directions)
         tvEmptyListDestinations = findViewById(R.id.tv_empty_list_destinations)
         tvEmptyListDestinations.visibility = if (storedLine.directions!!.size < 1) {
